@@ -45,4 +45,7 @@ export class Usuari {
 
     @OneToMany(() => Assistencia, (assistencia) => assistencia.alumne)
     assistencies: Assistencia[];
+
+    @OneToMany(() => Nota, (nota) => nota.alumne)
+    notes: Nota[];
 }

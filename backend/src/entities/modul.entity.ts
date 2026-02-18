@@ -30,4 +30,7 @@ export class Modul {
 
     @OneToMany(() => Assistencia, (assistencia) => assistencia.modul)
     assistencies: Assistencia[];
+
+    @OneToMany(() => Nota, (nota) => nota.modul)
+    notes: Nota[];
 }
