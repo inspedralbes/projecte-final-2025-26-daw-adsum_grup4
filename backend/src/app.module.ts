@@ -6,6 +6,22 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { GroupsModule } from './groups/groups.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { SeedModule } from './seed/seed.module';
+import { NotificacionsModule } from './notifications/notifications.module';
+
+import { Usuari } from './entities/usuari.entity';
+import { Grup } from './entities/grup.entity';
+import { Assignatura } from './entities/assignatura.entity';
+import { Matricula } from './entities/matricula.entity';
+import { AssignacioDocent } from './entities/assignacio-docent.entity';
+import { ConfiguracioCentre } from './entities/configuracio-centre.entity';
+import { Horari } from './entities/horari.entity';
+import { Sessio } from './entities/sessio.entity';
+import { Assistencia } from './entities/assistencia.entity';
+import { SortidaAula } from './entities/sortida-aula.entity';
+import { Justificacio } from './entities/justificacio.entity';
+import { LogAuditoria } from './entities/log-auditoria.entity';
+import { SubscripcioPush } from './entities/subscripcio-push.entity';
 
 @Module({
   imports: [
@@ -22,13 +38,19 @@ import { AttendanceModule } from './attendance/attendance.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [
+          Usuari, Grup, Assignatura, Matricula, AssignacioDocent,
+          ConfiguracioCentre, Horari, Sessio, Assistencia,
+          SortidaAula, Justificacio, LogAuditoria, SubscripcioPush
+        ],
         synchronize: true,
       }),
     }),
     UsersModule,
     GroupsModule,
     AttendanceModule,
+    SeedModule,
+    NotificacionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
