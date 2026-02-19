@@ -39,9 +39,19 @@ import { SubscripcioPush } from './entities/subscripcio-push.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [
-          Usuari, Grup, Assignatura, Matricula, AssignacioDocent,
-          ConfiguracioCentre, Horari, Sessio, Assistencia,
-          SortidaAula, Justificacio, LogAuditoria, SubscripcioPush
+          Usuari,
+          Grup,
+          Assignatura,
+          Matricula,
+          AssignacioDocent,
+          ConfiguracioCentre,
+          Horari,
+          Sessio,
+          Assistencia,
+          SortidaAula,
+          Justificacio,
+          LogAuditoria,
+          SubscripcioPush,
         ],
         synchronize: true,
       }),
@@ -55,4 +65,4 @@ import { SubscripcioPush } from './entities/subscripcio-push.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

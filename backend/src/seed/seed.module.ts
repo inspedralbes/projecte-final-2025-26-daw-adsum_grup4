@@ -11,18 +11,18 @@ import { ConfiguracioCentre } from '../entities/configuracio-centre.entity';
 import { Sessio } from '../entities/sessio.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            Usuari,
-            Grup,
-            Assignatura,
-            Matricula,
-            AssignacioDocent,
-            ConfiguracioCentre,
-            Sessio
-        ])
-    ],
-    controllers: [SeedController],
-    providers: [SeedService]
+  imports: [
+    TypeOrmModule.forFeature([
+      Usuari,
+      Grup,
+      Assignatura,
+      Matricula,
+      AssignacioDocent,
+      ConfiguracioCentre,
+      Sessio,
+    ]),
+  ],
+  controllers: [SeedController],
+  providers: [SeedService],
 })
-export class SeedModule { }
+export class SeedModule {}

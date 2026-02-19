@@ -6,12 +6,9 @@ import { SubscripcioPush } from '../entities/subscripcio-push.entity';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([SubscripcioPush]),
-        AuthModule
-    ],
-    controllers: [NotificacionsController],
-    providers: [NotificacionsService],
-    exports: [NotificacionsService]
+  imports: [TypeOrmModule.forFeature([SubscripcioPush]), AuthModule],
+  controllers: [NotificacionsController],
+  providers: [NotificacionsService],
+  exports: [NotificacionsService],
 })
-export class NotificacionsModule { }
+export class NotificacionsModule {}

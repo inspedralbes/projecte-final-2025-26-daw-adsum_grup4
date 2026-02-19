@@ -3,10 +3,10 @@ import { SeedService } from './seed.service';
 
 @Controller('api/seed')
 export class SeedController {
-    constructor(private readonly seedService: SeedService) { }
+  constructor(private readonly seedService: SeedService) {}
 
-    @Get('executar')
-    async executarSeed() {
-        return await this.seedService.executarSeed();
-    }
+  @Get('executar')
+  async executarSeed() {
+    return await this.seedService.executarSeed();
+  }
 }
