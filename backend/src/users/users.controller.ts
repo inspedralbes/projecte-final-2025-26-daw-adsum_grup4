@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, ClassSerializerInterceptor, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Usuari } from '../entities/usuari.entity';
 
@@ -29,5 +29,15 @@ export class UsersController {
     @Delete(':id')
     async eliminarUsuari(@Param('id') id: string): Promise<void> {
         return await this.usersService.eliminar(+id);
+    }
+
+    // Mètode importat de la branca dev
+    @Get(':id/stats')
+    async getStats(@Param('id') id: string) {
+        const stats = await this.usersService.getAlumneStats(Number(id));
+        if (!stats) {
+            throw new NotFoundException(`Alumne amb id ${id} no trobat`);
+        }
+        return stats;
     }
 }

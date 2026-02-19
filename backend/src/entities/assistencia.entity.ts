@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDa
 import { Sessio } from './sessio.entity';
 import { Usuari } from './usuari.entity';
 import { Assignatura } from './assignatura.entity';
+import { Modul } from './modul.entity';
 
 export enum AssistenciaEstat {
     PRESENT = 'present',
@@ -23,10 +24,10 @@ export class Assistencia {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'sessio_id' })
+    @Column({ name: 'sessio_id', nullable: true })
     sessioId: number;
 
-    @ManyToOne(() => Sessio, (sessio) => sessio.assistencies, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Sessio, (sessio) => sessio.assistencies, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'sessio_id' })
     sessio: Sessio;
 
@@ -36,6 +37,10 @@ export class Assistencia {
     @ManyToOne(() => Usuari, (usuari) => usuari.assistencies, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'alumne_id' })
     alumne: Usuari;
+
+    @ManyToOne(() => Modul, (modul) => modul.assistencies, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'modul_id' })
+    modul: Modul;
 
     @CreateDateColumn({ name: 'data_registre' })
     dataRegistre: Date;
