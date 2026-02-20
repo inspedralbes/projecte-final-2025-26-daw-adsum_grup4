@@ -34,9 +34,10 @@ export class AttendanceGateway
   }
 
   startQrLoop() {
-    // Generamos un nuevo QR cada 5 segundos
+    // Generamos un nuevo QR cada 5 segundos (per als antics tests de QR)
     setInterval(async () => {
-      const tokenData = await this.attendanceService.generateToken();
+      // Passem IDs per defecte per evitar errors si el loop segueix actiu
+      const tokenData = await this.attendanceService.generateToken(0, 0);
       this.server.emit('new_qr', {
         token: tokenData.token,
         expiresAt: tokenData.expiresAt,

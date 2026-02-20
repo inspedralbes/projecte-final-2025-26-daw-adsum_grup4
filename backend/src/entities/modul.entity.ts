@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColum
 import { Usuari } from './usuari.entity';
 import { Grup } from './grup.entity';
 import { Assistencia } from './assistencia.entity';
+import { Nota } from './nota.entity';
 
 @Entity('moduls')
 export class Modul {

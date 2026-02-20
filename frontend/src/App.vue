@@ -1,19 +1,28 @@
 <template>
-  <AppShell #default="{ activeView }">
-    <DashboardBento v-if="activeView === 'home'" />
-    <PerformanceView v-else-if="activeView === 'performance'" />
+  <AppShell #default="{ activeView, changeView }">
+    <div v-if="activeView === 'home'">
+      <DashboardProfessor v-if="!selectedClass" @select-class="onSelectClass" />
+      <ClasseDetall v-else :modul="selectedClass" @back="selectedClass = null" />
+    </div>
     <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400">
       <p class="text-4xl mb-4">🚧</p>
       <p class="font-bold uppercase tracking-widest text-xs">Secció en construcció</p>
-      <p class="text-sm mt-1">Properament disponible en la v2.0</p>
+      <p class="text-sm mt-1">Dissenyant noves eines per a professors</p>
     </div>
   </AppShell>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import AppShell from './layouts/AppShell.vue';
-import DashboardBento from './views/DashboardBento.vue';
-import PerformanceView from './views/PerformanceView.vue';
+import DashboardProfessor from './views/DashboardProfessor.vue';
+import ClasseDetall from './views/ClasseDetall.vue';
+
+const selectedClass = ref(null);
+
+const onSelectClass = (modul) => {
+  selectedClass.value = modul;
+};
 </script>
 
 <style>

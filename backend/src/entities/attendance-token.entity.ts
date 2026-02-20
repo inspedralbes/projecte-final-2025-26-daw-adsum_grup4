@@ -9,6 +9,18 @@ export class AttendanceToken {
     token: string;
 
     @Column()
+    modulId: number;
+
+    @Column()
+    professorId: number;
+
+    @Column({ default: 15 })
+    lateMinutes: number;
+
+    @Column({ default: 30 })
+    absentMinutes: number;
+
+    @Column()
     expiresAt: Date;
 
     @Column({ default: false })

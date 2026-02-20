@@ -3,6 +3,7 @@ import { Grup } from './grup.entity';
 import { Dispositiu } from './dispositiu.entity';
 import { Modul } from './modul.entity';
 import { Assistencia } from './assistencia.entity';
+import { Nota } from './nota.entity';
 
 export enum UserRole {
     ALUMNE = 'alumne',
@@ -36,6 +37,12 @@ export class Usuari {
 
     @Column({ nullable: true })
     grup_id: number;
+
+    @Column({ nullable: true })
+    foto: string;
+
+    @Column({ nullable: true })
+    telefon: string;
 
     @OneToMany(() => Dispositiu, (dispositiu) => dispositiu.usuari)
     dispositius: Dispositiu[];
