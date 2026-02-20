@@ -23,18 +23,18 @@ export class Modul {
   codi: string;
 
   @ManyToOne(() => Usuari, (usuari) => usuari.moduls_impartits)
-  @JoinColumn({ name: 'professor_id' })
+  @JoinColumn({ name: 'id_usuari' })
   professor: Usuari;
 
-  @Column()
-  professor_id: number;
+  @Column({ name: 'id_usuari' })
+  id_usuari: number;
 
   @ManyToOne(() => Grup, (grup) => grup.moduls)
-  @JoinColumn({ name: 'grup_id' })
+  @JoinColumn({ name: 'id_grup' })
   grup: Grup;
 
-  @Column()
-  grup_id: number;
+  @Column({ name: 'id_grup' })
+  id_grup: number;
 
   @OneToMany(() => Assistencia, (assistencia) => assistencia.modul)
   assistencies: Assistencia[];

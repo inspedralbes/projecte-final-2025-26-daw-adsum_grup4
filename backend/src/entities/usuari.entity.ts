@@ -6,7 +6,6 @@ import {
   JoinColumn,
   OneToMany,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
@@ -45,7 +44,7 @@ export enum NivellEducatiu {
 
 @Entity('usuaris')
 export class Usuari {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id_usuari' })
   id: number;
 
   @Column({ length: 50 })
@@ -54,13 +53,13 @@ export class Usuari {
   @Column({ length: 100 })
   cognoms: string;
 
-  @Column({ length: 100, unique: true })
+  @Column({ length: 100 })
   email: string;
 
   @Column({ name: 'contrasenya_hash' })
   contrasenyaHash: string;
 
-  @Column({ name: 'dni_nie', length: 20, unique: true, nullable: true })
+  @Column({ name: 'dni_nie', length: 20, nullable: true })
   dniNie: string;
 
   @Column({ length: 15, nullable: true })
@@ -96,7 +95,7 @@ export class Usuari {
   @Column({ length: 100, nullable: true })
   departament: string;
 
-  @Column({ name: 'nfc_uid', length: 50, unique: true, nullable: true })
+  @Column({ name: 'nfc_uid', length: 50, nullable: true })
   nfcUid: string;
 
   @Column({ name: 'token_qr_secret', length: 100, nullable: true })

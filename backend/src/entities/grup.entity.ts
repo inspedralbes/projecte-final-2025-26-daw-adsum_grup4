@@ -12,10 +12,10 @@ import { Modul } from './modul.entity';
 
 @Entity('grups')
 export class Grup {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id_grup' })
   id: number;
 
-  @Column({ unique: true, length: 10 })
+  @Column({ length: 10 })
   codi: string;
 
   @Column({ length: 50 })
