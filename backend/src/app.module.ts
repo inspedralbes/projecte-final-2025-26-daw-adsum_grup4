@@ -22,6 +22,8 @@ import { SortidaAula } from './entities/sortida-aula.entity';
 import { Justificacio } from './entities/justificacio.entity';
 import { LogAuditoria } from './entities/log-auditoria.entity';
 import { SubscripcioPush } from './entities/subscripcio-push.entity';
+import { Modul } from './entities/modul.entity';
+import { Nota } from './entities/nota.entity';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { SubscripcioPush } from './entities/subscripcio-push.entity';
           Justificacio,
           LogAuditoria,
           SubscripcioPush,
+          Modul,
+          Nota,
         ],
         synchronize: true,
       }),
