@@ -51,6 +51,9 @@ export class Assistencia {
   @JoinColumn({ name: 'alumne_id' })
   alumne: Usuari;
 
+  @Column({ name: 'modul_id', nullable: true })
+  modulId: number;
+
   @ManyToOne(() => Modul, (modul) => modul.assistencies, {
     nullable: true,
     onDelete: 'SET NULL',

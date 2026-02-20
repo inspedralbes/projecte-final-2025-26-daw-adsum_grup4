@@ -12,6 +12,7 @@ import {
 } from '../entities/assistencia.entity';
 import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { Usuari } from '../entities/usuari.entity';
+import { AttendanceToken } from '../entities/attendance-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -25,38 +26,80 @@ export class AttendanceService {
     private sessioRepo: Repository<Sessio>,
     @InjectRepository(Usuari)
     private usuariRepo: Repository<Usuari>,
-  ) {}
+    @InjectRepository(AttendanceToken)
+    private readonly tokenRepository: Repository<AttendanceToken>,
+  ) { }
 
-  async generateToken(): Promise<{ token: string; expiresAt: Date }> {
-    const tokenValue = uuidv4();
-    const expiresAt = new Date();
-    expiresAt.setSeconds(expiresAt.getSeconds() + 3600); // 1h per test
+  async generateToken(
+    modulId?: number,
+    professorId?: number,
+    lateMinutes: number = 15,
+    absentMinutes: number = 30,
+  ): Promise<AttendanceToken | { token: string; expiresAt: Date }> {
+    if (modulId && professorId) {
+      // Logic from feature branch: persistence in DB
+      const tokenValue = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 2);
 
-    this.activeTokens.set(tokenValue, expiresAt);
+      const newToken = this.tokenRepository.create({
+        token: tokenValue,
+        modulId: modulId,
+        professorId: professorId,
+        lateMinutes: lateMinutes,
+        absentMinutes: absentMinutes,
+        expiresAt: expiresAt,
+        isUsed: false,
+      });
 
-    // Neteja de tokens expirats (simple)
-    if (this.activeTokens.size > 100) {
-      const now = new Date();
-      for (const [t, exp] of this.activeTokens.entries()) {
-        if (exp < now) this.activeTokens.delete(t);
-      }
+      return await this.tokenRepository.save(newToken);
+    } else {
+      // Logic from HEAD: legacy uuid token in memory
+      const tokenValue = uuidv4();
+      const expiresAt = new Date();
+      expiresAt.setSeconds(expiresAt.getSeconds() + 3600);
+
+      this.activeTokens.set(tokenValue, expiresAt);
+      return { token: tokenValue, expiresAt };
     }
-
-    return {
-      token: tokenValue,
-      expiresAt: expiresAt,
-    };
   }
 
-  async registrarAssistencia(alumneId: number, token: string) {
-    // 1. Validar Token
-    if (!this.activeTokens.has(token)) {
-      throw new BadRequestException('Token invàlid o expirat');
+  async validateToken(
+    tokenValue: string,
+  ): Promise<{ isValid: boolean; estat?: string }> {
+    // Check DB first
+    const token = await this.tokenRepository.findOne({
+      where: { token: tokenValue },
+    });
+
+    if (token) {
+      const now = new Date();
+      if (token.expiresAt < now) return { isValid: false };
+
+      const elapsedMinutes =
+        (now.getTime() - token.createdAt.getTime()) / (1000 * 60);
+
+      let estat = 'present';
+      if (elapsedMinutes >= token.absentMinutes) {
+        estat = 'absent';
+      } else if (elapsedMinutes >= token.lateMinutes) {
+        estat = 'retard';
+      }
+
+      return { isValid: true, estat };
     }
-    const expiresAt = this.activeTokens.get(token);
-    if (!expiresAt || expiresAt < new Date()) {
-      this.activeTokens.delete(token);
-      throw new BadRequestException('Token expirat');
+
+    // Check memory
+    const expiry = this.activeTokens.get(tokenValue);
+    const isValid = !!expiry && expiry > new Date();
+    return { isValid, estat: isValid ? 'present' : undefined };
+  }
+
+  async registrarAssistencia(alumneId: number, tokenValue: string) {
+    // 1. Validar Token
+    const validation = await this.validateToken(tokenValue);
+    if (!validation.isValid) {
+      throw new BadRequestException('Token invàlid o expirat');
     }
 
     // 2. Trobar Alumne
@@ -103,9 +146,8 @@ export class AttendanceService {
     const assistencia = this.assistenciaRepo.create({
       sessio: sessio,
       alumne: alumneQuery,
-      estat: AssistenciaEstat.PRESENT,
+      estat: (validation.estat as any) || AssistenciaEstat.PRESENT,
       metodeValidacio: MetodeValidacio.QR_MOBIL,
-      // dataRegistre s'autocompleta
     });
 
     await this.assistenciaRepo.save(assistencia);
@@ -117,8 +159,29 @@ export class AttendanceService {
     };
   }
 
-  async validateToken(tokenValue: string): Promise<boolean> {
-    const expiry = this.activeTokens.get(tokenValue);
-    return !!expiry && expiry > new Date();
+  async registerManualAttendance(
+    alumneId: number,
+    modulId: number,
+    estat: string,
+  ) {
+    const avui = new Date().toISOString().split('T')[0];
+    const hora = new Date().toTimeString().split(' ')[0];
+
+    let assistencia = await this.assistenciaRepo.findOne({
+      where: { alumneId: alumneId, modulId: modulId },
+    });
+
+    if (assistencia) {
+      assistencia.estat = estat as any;
+    } else {
+      assistencia = this.assistenciaRepo.create({
+        alumneId: alumneId,
+        modulId: modulId,
+        estat: estat as any,
+        metodeValidacio: MetodeValidacio.PROFESSOR_MANUAL,
+      });
+    }
+
+    return await this.assistenciaRepo.save(assistencia);
   }
 }

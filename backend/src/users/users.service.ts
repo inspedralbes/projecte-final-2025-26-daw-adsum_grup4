@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Usuari } from '../entities/usuari.entity';
+import { Repository, In } from 'typeorm';
+import { Usuari, UserRole } from '../entities/usuari.entity';
 import { Assistencia } from '../entities/assistencia.entity';
+import { Modul } from '../entities/modul.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -12,7 +13,9 @@ export class UsersService {
     private readonly usuariRepositori: Repository<Usuari>,
     @InjectRepository(Assistencia)
     private readonly assistenciaRepositori: Repository<Assistencia>,
-  ) {}
+    @InjectRepository(Modul)
+    private readonly modulRepositori: Repository<Modul>,
+  ) { }
 
   async crear(dadesUsuari: Partial<Usuari>): Promise<Usuari> {
     const nouUsuari = this.usuariRepositori.create(dadesUsuari);
@@ -93,11 +96,6 @@ export class UsersService {
   }
 
   async actualitzarContrasenya(id: number, nouHash: string) {
-    // Use undefined instead of null if TypeORM complains about null for nullable fields in QueryDeepPartialEntity,
-    // or just let it be null if the entity definition allows it.
-    // Actually, for TypeORM update, setting to null should be fine if column is nullable.
-    // The previous error might have been related to strictNullChecks.
-    // Let's force casting or use simple object.
     await this.usuariRepositori.update(id, {
       contrasenyaHash: nouHash,
       tokenRecuperacio: null as any,
@@ -105,9 +103,7 @@ export class UsersService {
     });
   }
 
-  // Mètode importat de dev i adaptat
   async getAlumneStats(id: number) {
-    // Obtenir dades de l'alumne
     const alumne = await this.usuariRepositori.findOne({
       where: { id: id },
       relations: ['grup'],
@@ -115,7 +111,6 @@ export class UsersService {
 
     if (!alumne) return null;
 
-    // Obtenir totes les assistències de l'alumne
     const assistencies = await this.assistenciaRepositori.find({
       where: { alumne: { id: id } },
       relations: [
@@ -127,7 +122,6 @@ export class UsersService {
     });
 
     const total = assistencies.length;
-    // estat: present, justificat, absent, retard (enum values match lowercase strings used in compare)
     const presents = assistencies.filter(
       (a) => a.estat === 'present' || a.estat === 'justificat',
     ).length;
@@ -135,9 +129,7 @@ export class UsersService {
     const retards = assistencies.filter((a) => a.estat === 'retard').length;
     const percentatge = total > 0 ? Math.round((presents / total) * 100) : 0;
 
-    // Calcular ratxa actual (dies consecutius presents)
     let ratxa = 0;
-    // Sort by date desc (already sorted by query but ensuring)
     const sorted = [...assistencies].sort(
       (a, b) => b.dataRegistre.getTime() - a.dataRegistre.getTime(),
     );
@@ -146,10 +138,9 @@ export class UsersService {
       else break;
     }
 
-    // Últimes 10 assistències per mostrar al frontend
     const recents = assistencies.slice(0, 10).map((a) => ({
-      data: a.dataRegistre.toISOString().split('T')[0], // YYYY-MM-DD
-      hora: a.dataRegistre.toTimeString().split(' ')[0], // HH:MM:SS
+      data: a.dataRegistre.toISOString().split('T')[0],
+      hora: a.dataRegistre.toTimeString().split(' ')[0],
       modul: a.sessio?.assignacioDocent?.assignatura?.nom ?? 'Desconegut',
       estat: a.estat,
     }));
@@ -158,7 +149,7 @@ export class UsersService {
       nom: alumne.nom,
       email: alumne.email,
       grup: alumne.grup?.nom ?? '',
-      curs: (alumne.grup as any)?.cursAcademic ?? '', // cursAcademic property name check
+      curs: (alumne.grup as any)?.cursAcademic ?? '',
       stats: {
         total,
         presents,
@@ -169,5 +160,122 @@ export class UsersService {
       },
       recents,
     };
+  }
+
+  async getProfessorModuls(id: number) {
+    return await this.modulRepositori.find({
+      where: { id_usuari: id },
+      relations: ['grup'],
+    });
+  }
+
+  async getModulStudents(modulId: number) {
+    const modul = await this.modulRepositori.findOne({
+      where: { id_modul: modulId },
+      relations: ['grup'],
+    });
+
+    if (!modul) return null;
+
+    const alumnes = await this.usuariRepositori.find({
+      where: { grup: { id: modul.id_grup }, rol: UserRole.ALUMNE },
+      order: { nom: 'ASC' },
+    });
+
+    const totHistorial = await this.assistenciaRepositori.find({
+      where: { alumne: { id: In(alumnes.map((a) => a.id)) } },
+    });
+
+    const avui = new Date().toISOString().split('T')[0];
+
+    return alumnes.map((alumne) => {
+      const historialAlumne = totHistorial.filter(
+        (h) => (h as any).alumneId === alumne.id,
+      );
+      const assistenciaAvui = historialAlumne.find(
+        (h) => (h as any).modulId === modulId && (h as any).data === avui,
+      );
+
+      return {
+        id: alumne.id,
+        nom: alumne.nom,
+        email: alumne.email,
+        foto:
+          (alumne as any).fotoUrl ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${alumne.nom}`,
+        telefon: alumne.telefon || '600 000 000',
+        estat: assistenciaAvui ? assistenciaAvui.estat : 'pendent',
+        faltas_acumuladas: historialAlumne.filter((h) => h.estat === 'absent')
+          .length,
+        retrasos_acumulados: historialAlumne.filter((h) => h.estat === 'retard')
+          .length,
+      };
+    });
+  }
+
+  async seedStudents(modulId: number) {
+    const modul = await this.modulRepositori.findOne({
+      where: { id_modul: modulId },
+      relations: ['grup'],
+    });
+
+    if (!modul || !modul.id_grup)
+      return { success: false, message: 'Module or Group not found' };
+
+    const currentStudents = await this.usuariRepositori.count({
+      where: { grup: { id: modul.id_grup }, rol: UserRole.ALUMNE },
+    });
+
+    if (currentStudents >= 20) {
+      return {
+        success: true,
+        message: `Already has ${currentStudents} students`,
+      };
+    }
+
+    const names = [
+      'Marc Roig',
+      'Laia Sols',
+      'Pol Vila',
+      'Anna Bosch',
+      'Joan Martí',
+      'Carla Puig',
+      'Miquel Serra',
+      'Elena Roca',
+      'Jordi Font',
+      'Sílvia Mas',
+      'Albert Soler',
+      'Marta Vidal',
+      'Pau Casals',
+      'Núria Riera',
+      'Roger Molins',
+      'Laura Gallart',
+      'Oriol Rovira',
+      'Clara Valls',
+      'Xavier Bosch',
+      'Irene Solà',
+      'Bernat Figueras',
+      'Marina Prats',
+    ];
+
+    const newStudents: Usuari[] = [];
+    for (let i = currentStudents; i < 22; i++) {
+      const name = names[i % names.length] + (i > names.length ? ` ${i}` : '');
+      const email = `student${i}@example.com`;
+
+      const student = this.usuariRepositori.create({
+        nom: name,
+        email: email,
+        contrasenyaHash: 'hashed_password', // Mock password
+        rol: UserRole.ALUMNE,
+        grup: { id: modul.id_grup } as any,
+        fotoUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+        telefon: `600 ${100 + i} ${200 + i}`,
+      });
+      newStudents.push(student);
+    }
+
+    await this.usuariRepositori.save(newStudents);
+    return { success: true, message: `Added ${newStudents.length} students` };
   }
 }
