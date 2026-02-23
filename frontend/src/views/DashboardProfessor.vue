@@ -2,14 +2,14 @@
   <div class="space-y-6">
     <section class="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
       <div class="relative z-10">
-        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, Prof. Garcia</h2>
+        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, {{ user?.nom }}</h2>
         <p class="mt-2 text-indigo-100 font-bold text-xs uppercase tracking-widest">Tens {{ moduls.length }} classes assignades</p>
       </div>
       <div class="absolute -top-12 -right-12 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50 font-black flex items-center justify-center text-indigo-400/20 text-9xl">P</div>
     </section>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="modul in moduls" :key="modul.id_modul" 
+      <div v-for="modul in moduls" :key="modul.id" 
         @click="$emit('select-class', modul)"
         class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-indigo-200 transition-all cursor-pointer group hover:-translate-y-1"
       >
@@ -38,20 +38,26 @@
 import { ref, onMounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
 const emit = defineEmits(['select-class']);
 const moduls = ref([]);
 
 onMounted(async () => {
   try {
-    // Hardcoded professor ID for demonstration
-    const res = await fetch('http://localhost:3000/users/professor/1/moduls');
+    const res = await fetch(`http://localhost:3000/api/usuaris/professor/${props.user.id}/moduls`);
     moduls.value = await res.json();
   } catch (e) {
     console.error('Error fetching moduls:', e);
     // Fallback Mock data
     moduls.value = [
-      { id_modul: 1, nom: 'Desenvolupament Web', codi: 'M7', grup: { nom: 'DAW2' } },
-      { id_modul: 2, nom: 'Bases de Dades', codi: 'M3', grup: { nom: 'DAW1' } }
+      { id: 1, nom: 'Desenvolupament Web', codi: 'M7', grup: { nom: 'DAW2' } },
+      { id: 2, nom: 'Bases de Dades', codi: 'M3', grup: { nom: 'DAW1' } }
     ];
   }
 });

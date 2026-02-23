@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Raw } from 'typeorm';
 import {
   Assistencia,
   AssistenciaEstat,
@@ -166,18 +166,21 @@ export class AttendanceService {
     estat: string,
   ) {
     const avui = new Date().toISOString().split('T')[0];
-    const hora = new Date().toTimeString().split(' ')[0];
 
     let assistencia = await this.assistenciaRepo.findOne({
-      where: { alumneId: alumneId, modulId: modulId },
+      where: {
+        alumneId: alumneId,
+        modulId: modulId,
+        dataRegistre: Raw((alias) => `DATE(${alias}) = :avui`, { avui }),
+      },
     });
 
     if (assistencia) {
       assistencia.estat = estat as any;
     } else {
       assistencia = this.assistenciaRepo.create({
-        alumneId: alumneId,
-        modulId: modulId,
+        alumneId,
+        modulId,
         estat: estat as any,
         metodeValidacio: MetodeValidacio.PROFESSOR_MANUAL,
       });

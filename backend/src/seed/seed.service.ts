@@ -37,21 +37,24 @@ export class SeedService implements OnApplicationBootstrap {
     const defaultUsers = [
       {
         email: 'alumne@adsum.cat',
-        nom: 'Alumne Demo',
+        nom: 'Alumne',
+        cognoms: 'Demo',
         password: 'password123',
         rol: UserRole.ALUMNE,
       },
       {
         email: 'professor@adsum.cat',
-        nom: 'Professor Demo',
+        nom: 'Professor',
+        cognoms: 'Demo',
         password: 'password123',
         rol: UserRole.PROFESSOR,
       },
       {
         email: 'admin@adsum.cat',
-        nom: 'Admin Demo',
+        nom: 'Admin',
+        cognoms: 'Demo',
         password: 'password123',
-        rol: UserRole.PROFESSOR,
+        rol: UserRole.ADMIN,
       },
     ];
 
@@ -64,8 +67,10 @@ export class SeedService implements OnApplicationBootstrap {
         const newUser = this.usuariRepo.create({
           email: u.email,
           nom: u.nom,
+          cognoms: u.cognoms,
           contrasenyaHash,
           rol: u.rol,
+          esActiu: true,
         });
         await this.usuariRepo.save(newUser);
         console.log(`Seeded user: ${u.email} with password: ${u.password}`);

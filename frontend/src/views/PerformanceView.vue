@@ -57,6 +57,13 @@
 import { ref, onMounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
 const notes = ref([]);
 const average = ref('0.0');
 const loading = ref(true);
@@ -64,8 +71,8 @@ const loading = ref(true);
 const fetchNotes = async () => {
   try {
     const [notesRes, avgRes] = await Promise.all([
-      fetch('http://localhost:3000/notes/alumne/1'),
-      fetch('http://localhost:3000/notes/alumne/1/mitjana')
+      fetch(`http://localhost:3000/notes/alumne/${props.user.id}`),
+      fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`)
     ]);
     notes.value = await notesRes.json();
     const avgData = await avgRes.json();

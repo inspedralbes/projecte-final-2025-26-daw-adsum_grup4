@@ -202,9 +202,13 @@ export class UsersService {
       const historialAlumne = totHistorial.filter(
         (h) => h.alumne?.id === alumne.id,
       );
-      const assistenciaAvui = historialAlumne.find(
-        (h) => (h as any).modulId === modulId && (h as any).data === avui,
-      );
+      const assistenciaAvui = historialAlumne.find((h) => {
+        const hData =
+          h.dataRegistre instanceof Date
+            ? h.dataRegistre.toISOString().split('T')[0]
+            : String(h.dataRegistre).split('T')[0];
+        return h.modulId === modulId && hData === avui;
+      });
 
       return {
         id: alumne.id,

@@ -102,7 +102,7 @@ const loading = ref(true);
 const fetchDashboardData = async () => {
   try {
     const [statsRes, avgRes] = await Promise.all([
-      fetch(`http://localhost:3000/users/alumne/${props.user.id}/stats`),
+      fetch(`http://localhost:3000/api/usuaris/${props.user.id}/stats`),
       fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`)
     ]);
     

@@ -27,7 +27,7 @@
           <div class="flex-1 overflow-hidden">
             <p class="text-sm font-bold truncate">{{ user?.nom }}</p>
             <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-              {{ user?.rol === 'professor' ? 'Professor' : 'Alumne' }}
+              {{ user?.rol === 'professor' ? 'Professor' : user?.rol === 'admin' ? 'Administrador' : 'Alumne' }}
             </p>
           </div>
           <AppIcon name="logout" class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" />
@@ -100,6 +100,13 @@ const navItems = computed(() => {
     return [
       { id: 'home', label: 'Inici', icon: 'home' },
       { id: 'performance', label: 'Grups', icon: 'stats' },
+    ];
+  }
+  if (props.user?.rol === 'admin') {
+    return [
+      { id: 'home', label: 'Inici', icon: 'home' },
+      { id: 'users', label: 'Usuaris', icon: 'users' },
+      { id: 'center', label: 'Centre', icon: 'settings' },
     ];
   }
   return [

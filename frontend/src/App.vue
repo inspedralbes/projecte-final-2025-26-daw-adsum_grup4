@@ -7,8 +7,8 @@
     <Transition name="fade" mode="out-in">
       <div v-if="currentUser?.rol === 'professor'">
         <div v-if="activeView === 'home'">
-          <DashboardProfessor v-if="!selectedClass" @select-class="onSelectClass" />
-          <ClasseDetall v-else :modul="selectedClass" @back="selectedClass = null" />
+          <DashboardProfessor v-if="!selectedClass" :user="currentUser" @select-class="onSelectClass" />
+          <ClasseDetall v-else :user="currentUser" :modul="selectedClass" @back="selectedClass = null" />
         </div>
         <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
           <p class="text-4xl mb-4">🚧</p>
@@ -23,6 +23,18 @@
           <p class="text-4xl mb-4">🚧</p>
           <p class="font-bold uppercase tracking-widest text-xs">Secció en construcció</p>
           <p class="text-sm mt-1">Properament disponible</p>
+        </div>
+      </div>
+
+      <div v-else-if="currentUser?.rol === 'admin'">
+        <div v-if="activeView === 'home'" class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
+          <p class="text-4xl mb-4">👑</p>
+          <p class="font-bold uppercase tracking-widest text-xs">Panel de Administrador</p>
+          <p class="text-sm mt-1">Benvingut, {{ currentUser.nom }}. Les eines de gestión estaran disponibles aviat.</p>
+        </div>
+        <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
+          <p class="text-4xl mb-4">🚧</p>
+          <p class="font-bold uppercase tracking-widest text-xs">Secció d'Admin en construcció</p>
         </div>
       </div>
     </Transition>
@@ -52,6 +64,7 @@ const handleLogout = () => {
   localStorage.removeItem('user');
   isLoggedIn.value = false;
   currentUser.value = null;
+  selectedClass.value = null;
 };
 
 const onSelectClass = (modul) => {

@@ -345,6 +345,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 
 const props = defineProps({
+  user: { type: Object, required: true },
   modul: { type: Object, required: true }
 });
 
@@ -431,8 +432,8 @@ const generateCode = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        modulId: props.modul.id_modul, 
-        professorId: 1,
+        modulId: props.modul.id, 
+        professorId: props.user.id,
         lateMinutes: lateMinutes.value,
         absentMinutes: absentMinutes.value,
         validityMinutes: validityMinutes.value
@@ -451,7 +452,7 @@ const generateCode = async () => {
 
 const fetchStudents = async () => {
   try {
-    const res = await fetch(`http://localhost:3000/users/modul/${props.modul.id_modul}/students`);
+    const res = await fetch(`http://localhost:3000/api/usuaris/modul/${props.modul.id}/students`);
     students.value = await res.json();
   } catch (e) {
     // Fallback Mock data
@@ -475,7 +476,7 @@ const fetchStudents = async () => {
 
 const seedData = async () => {
   try {
-    await fetch(`http://localhost:3000/users/modul/${props.modul.id_modul}/seed`, { method: 'POST' });
+    await fetch(`http://localhost:3000/api/usuaris/modul/${props.modul.id}/seed`, { method: 'POST' });
     await fetchStudents();
   } catch (e) {
     console.error('Error seeding data');
@@ -492,7 +493,7 @@ const updateStatus = async (student, newStatus) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         alumneId: student.id, 
-        modulId: props.modul.id_modul, 
+        modulId: props.modul.id, 
         estat: newStatus 
       })
     });
