@@ -5,8 +5,8 @@ import { Assistencia } from './assistencia.entity';
 
 @Entity('moduls')
 export class Modul {
-    @PrimaryGeneratedColumn()
-    id_modul: number;
+    @PrimaryGeneratedColumn({ name: 'id' })
+    id: number;
 
     @Column()
     nom: string;

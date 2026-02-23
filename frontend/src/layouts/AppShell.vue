@@ -20,12 +20,17 @@
       </nav>
 
       <div class="p-4 border-t border-slate-100">
-        <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
-          <div class="w-10 h-10 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold">AL</div>
-          <div class="flex-1 overflow-hidden">
-            <p class="text-sm font-bold truncate">Andreia López</p>
-            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Alumna · Grup 4</p>
+        <div @click="$emit('logout')" class="flex items-center gap-3 p-2 rounded-xl hover:bg-red-50 transition-colors cursor-pointer group">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold uppercase">
+            {{ user?.nom?.substring(0, 2) }}
           </div>
+          <div class="flex-1 overflow-hidden">
+            <p class="text-sm font-bold truncate">{{ user?.nom }}</p>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+              {{ user?.rol === 'professor' ? 'Professor' : 'Alumne' }}
+            </p>
+          </div>
+          <AppIcon name="logout" class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" />
         </div>
       </div>
     </aside>
@@ -78,17 +83,34 @@ import { ref, computed } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 import AttendanceQR from '../components/alumne/AttendanceQR.vue';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
+const emit = defineEmits(['logout']);
+
 const activeView = ref('home');
 const showQR = ref(false);
 
-const navItems = [
-  { id: 'home', label: 'Inici', icon: 'home' },
-  { id: 'performance', label: 'Notes', icon: 'stats' },
-  { id: 'resources', label: 'Recursos', icon: 'book' },
-  { id: 'hallpass', label: 'Pasillo', icon: 'door' },
-];
+const navItems = computed(() => {
+  if (props.user?.rol === 'professor') {
+    return [
+      { id: 'home', label: 'Inici', icon: 'home' },
+      { id: 'performance', label: 'Grups', icon: 'stats' },
+    ];
+  }
+  return [
+    { id: 'home', label: 'Inici', icon: 'home' },
+    { id: 'performance', label: 'Notes', icon: 'stats' },
+    { id: 'resources', label: 'Recursos', icon: 'book' },
+    { id: 'hallpass', label: 'Pasillo', icon: 'door' },
+  ];
+});
 
-const currentTitle = computed(() => navItems.find(i => i.id === activeView.value)?.label || 'ADSUM');
+const currentTitle = computed(() => navItems.value.find(i => i.id === activeView.value)?.label || 'ADSUM');
 </script>
 
 <style>

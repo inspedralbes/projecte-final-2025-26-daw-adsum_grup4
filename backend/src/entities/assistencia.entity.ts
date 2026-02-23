@@ -11,8 +11,8 @@ export enum AssistenciaEstat {
 
 @Entity('assistencies')
 export class Assistencia {
-    @PrimaryGeneratedColumn()
-    id_assistencia: number;
+    @PrimaryGeneratedColumn({ name: 'id' })
+    id: number;
 
     @ManyToOne(() => Usuari, (usuari) => usuari.assistencies)
     @JoinColumn({ name: 'alumne_id' })

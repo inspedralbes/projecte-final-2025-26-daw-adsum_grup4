@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <section class="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
       <div class="relative z-10">
-        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, Andreia</h2>
+        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, {{ user?.nom?.split(' ')[0] }}</h2>
         <p class="mt-2 text-indigo-100 font-bold text-xs uppercase tracking-widest">Pròxima classe: Matemàtiques · 12:45</p>
       </div>
       <div class="absolute -top-12 -right-12 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50 font-black flex items-center justify-center text-indigo-400/20 text-9xl">A</div>
@@ -76,11 +76,18 @@
 import { ref, onMounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
 const averageGrade = ref('...');
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:3000/notes/alumne/1/mitjana');
+    const res = await fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`);
     const data = await res.json();
     averageGrade.value = data.mitjana || '0.0';
   } catch (e) {

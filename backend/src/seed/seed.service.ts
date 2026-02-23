@@ -21,11 +21,11 @@ export class SeedService implements OnApplicationBootstrap {
         for (const u of defaultUsers) {
             const exists = await this.usersRepository.findOne({ where: { email: u.email } });
             if (!exists) {
-                const password_hash = await bcrypt.hash(u.password, 10);
+                const contrasenyaHash = await bcrypt.hash(u.password, 10);
                 const newUser = this.usersRepository.create({
                     email: u.email,
                     nom: u.nom,
-                    password_hash,
+                    contrasenyaHash,
                     rol: u.rol,
                 });
                 await this.usersRepository.save(newUser);

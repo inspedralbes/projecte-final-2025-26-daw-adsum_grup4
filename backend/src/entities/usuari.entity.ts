@@ -11,8 +11,8 @@ export enum UserRole {
 
 @Entity('usuaris')
 export class Usuari {
-    @PrimaryGeneratedColumn()
-    id_usuari: number;
+    @PrimaryGeneratedColumn({ name: 'id' })
+    id: number;
 
     @Column()
     nom: string;
@@ -20,8 +20,8 @@ export class Usuari {
     @Column({ unique: true })
     email: string;
 
-    @Column()
-    password_hash: string;
+    @Column({ name: 'contrasenya_hash' })
+    contrasenyaHash: string;
 
     @Column({
         type: 'enum',

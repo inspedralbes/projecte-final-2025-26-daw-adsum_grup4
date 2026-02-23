@@ -4,8 +4,8 @@ import { Modul } from './modul.entity';
 
 @Entity('grups')
 export class Grup {
-    @PrimaryGeneratedColumn()
-    id_grup: number;
+    @PrimaryGeneratedColumn({ name: 'id' })
+    id: number;
 
     @Column()
     nom: string;
