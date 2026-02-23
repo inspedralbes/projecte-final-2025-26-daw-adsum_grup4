@@ -74,16 +74,30 @@ const handleLogin = async () => {
     isLoading.value = true;
     errorMessage.value = '';
     
-    // Simulate API call
-    setTimeout(() => {
-        isLoading.value = false;
-        // Mock validation: accept any email/password for now as requested
-        // In a real scenario, this would check against the backend
-        if (email.value && password.value) {
-            emits('login-success');
-        } else {
-            errorMessage.value = 'Credencials invàlides';
+    try {
+        const response = await fetch('http://localhost:3000/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email.value, password: password.value })
+        });
+
+        if (!response.ok) {
+            throw new Error('Credencials invàlides');
         }
-    }, 1500);
+
+        const data = await response.json();
+        
+        // Save the token and user data in localStorage
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        emits('login-success');
+    } catch (error) {
+        errorMessage.value = error.message || 'Error en iniciar sessió';
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>

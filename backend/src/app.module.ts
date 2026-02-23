@@ -6,6 +6,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { GroupsModule } from './groups/groups.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { AuthModule } from './auth/auth.module';
+import { SeedService } from './seed/seed.service';
+import { Usuari } from './entities/usuari.entity';
 
 @Module({
   imports: [
@@ -26,11 +29,13 @@ import { AttendanceModule } from './attendance/attendance.module';
         synchronize: true,
       }),
     }),
+    TypeOrmModule.forFeature([Usuari]),
     UsersModule,
     GroupsModule,
     AttendanceModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService],
 })
 export class AppModule { }
