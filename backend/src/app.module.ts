@@ -24,7 +24,8 @@ import { LogAuditoria } from './entities/log-auditoria.entity';
 import { SubscripcioPush } from './entities/subscripcio-push.entity';
 import { Modul } from './entities/modul.entity';
 import { Nota } from './entities/nota.entity';
-
+import { AttendanceToken } from './entities/attendance-token.entity';
+import { Dispositiu } from './entities/dispositiu.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,6 +57,8 @@ import { Nota } from './entities/nota.entity';
           SubscripcioPush,
           Modul,
           Nota,
+          Dispositiu,
+          AttendanceToken,
         ],
         synchronize: true,
       }),

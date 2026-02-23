@@ -1,3 +1,5 @@
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   Controller,
   Get,
@@ -12,6 +14,7 @@ import { UsersService } from './users.service';
 import { Usuari } from '../entities/usuari.entity';
 
 @Controller('api/usuaris')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 

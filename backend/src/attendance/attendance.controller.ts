@@ -1,7 +1,10 @@
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 
 @Controller('attendance')
+@UseGuards(JwtAuthGuard)
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) { }
 

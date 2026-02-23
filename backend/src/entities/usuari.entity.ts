@@ -42,7 +42,7 @@ export enum NivellEducatiu {
 
 @Entity('usuaris')
 export class Usuari {
-  @PrimaryGeneratedColumn({ name: 'id_usuari' })
+  @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
   @Column({ length: 50 })

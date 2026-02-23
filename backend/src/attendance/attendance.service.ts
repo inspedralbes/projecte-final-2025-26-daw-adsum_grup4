@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   Injectable,
   BadRequestException,
@@ -38,7 +39,7 @@ export class AttendanceService {
   ): Promise<AttendanceToken | { token: string; expiresAt: Date }> {
     if (modulId && professorId) {
       // Logic from feature branch: persistence in DB
-      const tokenValue = Math.floor(100000 + Math.random() * 900000).toString();
+      const tokenValue = crypto.randomInt(100000, 999999).toString();
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 2);
 

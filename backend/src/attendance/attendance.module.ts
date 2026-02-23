@@ -6,9 +6,10 @@ import { Usuari } from '../entities/usuari.entity';
 import { AttendanceService } from './attendance.service';
 import { AttendanceGateway } from './attendance.gateway';
 import { AttendanceController } from './attendance.controller';
+import { AttendanceToken } from '../entities/attendance-token.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Assistencia, Sessio, Usuari])],
+  imports: [TypeOrmModule.forFeature([Assistencia, Sessio, Usuari, AttendanceToken])],
 
   controllers: [AttendanceController],
   providers: [AttendanceService, AttendanceGateway],

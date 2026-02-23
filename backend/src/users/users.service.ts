@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Usuari, UserRole } from '../entities/usuari.entity';
-import { Assistencia } from '../entities/assistencia.entity';
+import { Assistencia, AssistenciaEstat } from '../entities/assistencia.entity';
 import { Modul } from '../entities/modul.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -123,10 +123,10 @@ export class UsersService {
 
     const total = assistencies.length;
     const presents = assistencies.filter(
-      (a) => a.estat === 'present' || a.estat === 'justificat',
+      (a) => a.estat === AssistenciaEstat.PRESENT || a.estat === AssistenciaEstat.JUSTIFICAT,
     ).length;
-    const absents = assistencies.filter((a) => a.estat === 'absent').length;
-    const retards = assistencies.filter((a) => a.estat === 'retard').length;
+    const absents = assistencies.filter((a) => a.estat === AssistenciaEstat.ABSENT).length;
+    const retards = assistencies.filter((a) => a.estat === AssistenciaEstat.RETARD).length;
     const percentatge = total > 0 ? Math.round((presents / total) * 100) : 0;
 
     let ratxa = 0;
@@ -134,7 +134,7 @@ export class UsersService {
       (a, b) => b.dataRegistre.getTime() - a.dataRegistre.getTime(),
     );
     for (const a of sorted) {
-      if (a.estat === 'present') ratxa++;
+      if (a.estat === AssistenciaEstat.PRESENT) ratxa++;
       else break;
     }
 
@@ -164,7 +164,7 @@ export class UsersService {
 
   async getProfessorModuls(id: number) {
     return await this.modulRepositori.find({
-      where: { id_usuari: id },
+      where: { professor_id: id },
       relations: ['grup'],
     });
   }
@@ -178,7 +178,7 @@ export class UsersService {
     if (!modul) return null;
 
     const alumnes = await this.usuariRepositori.find({
-      where: { grup: { id: modul.id_grup }, rol: UserRole.ALUMNE },
+      where: { grup: { id: modul.grup_id }, rol: UserRole.ALUMNE },
       order: { nom: 'ASC' },
     });
 
@@ -190,7 +190,7 @@ export class UsersService {
 
     return alumnes.map((alumne) => {
       const historialAlumne = totHistorial.filter(
-        (h) => (h as any).alumneId === alumne.id,
+        (h) => h.alumne?.id === alumne.id,
       );
       const assistenciaAvui = historialAlumne.find(
         (h) => (h as any).modulId === modulId && (h as any).data === avui,
@@ -200,15 +200,11 @@ export class UsersService {
         id: alumne.id,
         nom: alumne.nom,
         email: alumne.email,
-        foto:
-          (alumne as any).fotoUrl ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${alumne.nom}`,
+        foto: (alumne as any).fotoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${alumne.nom}`,
         telefon: alumne.telefon || '600 000 000',
         estat: assistenciaAvui ? assistenciaAvui.estat : 'pendent',
-        faltas_acumuladas: historialAlumne.filter((h) => h.estat === 'absent')
-          .length,
-        retrasos_acumulados: historialAlumne.filter((h) => h.estat === 'retard')
-          .length,
+        faltas_acumuladas: historialAlumne.filter((h) => h.estat === AssistenciaEstat.ABSENT).length,
+        retrasos_acumulados: historialAlumne.filter((h) => h.estat === AssistenciaEstat.RETARD).length,
       };
     });
   }
@@ -219,11 +215,11 @@ export class UsersService {
       relations: ['grup'],
     });
 
-    if (!modul || !modul.id_grup)
+    if (!modul || !modul.grup_id)
       return { success: false, message: 'Module or Group not found' };
 
     const currentStudents = await this.usuariRepositori.count({
-      where: { grup: { id: modul.id_grup }, rol: UserRole.ALUMNE },
+      where: { grup: { id: modul.grup_id }, rol: UserRole.ALUMNE },
     });
 
     if (currentStudents >= 20) {
@@ -268,7 +264,7 @@ export class UsersService {
         email: email,
         contrasenyaHash: 'hashed_password', // Mock password
         rol: UserRole.ALUMNE,
-        grup: { id: modul.id_grup } as any,
+        grup: { id: modul.grup_id } as any,
         fotoUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
         telefon: `600 ${100 + i} ${200 + i}`,
       });

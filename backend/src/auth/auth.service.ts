@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   Injectable,
   UnauthorizedException,
@@ -46,10 +47,7 @@ export class AuthService {
     }
 
     // Generem token aleatori simple
-    const token =
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15);
-
+    const token = crypto.randomBytes(32).toString('hex');
     // Caducitat d'1 hora
     const caducitat = new Date();
     caducitat.setHours(caducitat.getHours() + 1);

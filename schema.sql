@@ -3,9 +3,9 @@
 -- Versió: Final (MVP + Funcionalitats Avançades)
 -- =======================================================
 
-DROP DATABASE IF EXISTS adsum_db;
-CREATE DATABASE adsum_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE adsum_db;
+DROP DATABASE IF EXISTS adsum_qr;
+CREATE DATABASE adsum_qr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE adsum_qr;
 
 -- -------------------------------------------------------
 -- 1. CONFIGURACIÓ GLOBAL (Singleton)

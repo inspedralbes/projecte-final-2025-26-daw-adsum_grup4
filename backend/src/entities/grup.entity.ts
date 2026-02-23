@@ -12,7 +12,7 @@ import { Modul } from './modul.entity';
 
 @Entity('grups')
 export class Grup {
-  @PrimaryGeneratedColumn({ name: 'id_grup' })
+  @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
   @Column({ length: 10 })
