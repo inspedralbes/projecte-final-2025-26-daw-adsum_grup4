@@ -4,7 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Usuari, UserRole } from '../entities/usuari.entity';
 import { Assistencia, AssistenciaEstat } from '../entities/assistencia.entity';
 import { Modul } from '../entities/modul.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +21,7 @@ export class UsersService {
     const nouUsuari = this.usuariRepositori.create(dadesUsuari);
 
     if (dadesUsuari.contrasenyaHash) {
-      const salt = await bcrypt.genSalt();
+      const salt = await bcrypt.genSalt(10);
       nouUsuari.contrasenyaHash = await bcrypt.hash(
         dadesUsuari.contrasenyaHash,
         salt,
@@ -50,7 +50,7 @@ export class UsersService {
     const usuari = await this.trobarUn(id);
 
     if (dadesActualitzades.contrasenyaHash) {
-      const salt = await bcrypt.genSalt();
+      const salt = await bcrypt.genSalt(10);
       dadesActualitzades.contrasenyaHash = await bcrypt.hash(
         dadesActualitzades.contrasenyaHash,
         salt,
@@ -72,6 +72,10 @@ export class UsersService {
 
   async trobarPerEmail(email: string): Promise<Usuari | null> {
     return await this.usuariRepositori.findOne({ where: { email } });
+  }
+
+  async findByEmail(email: string): Promise<Usuari | null> {
+    return this.trobarPerEmail(email);
   }
 
   async findOneByEmail(email: string): Promise<Usuari | null> {
@@ -123,10 +127,16 @@ export class UsersService {
 
     const total = assistencies.length;
     const presents = assistencies.filter(
-      (a) => a.estat === AssistenciaEstat.PRESENT || a.estat === AssistenciaEstat.JUSTIFICAT,
+      (a) =>
+        a.estat === AssistenciaEstat.PRESENT ||
+        a.estat === AssistenciaEstat.JUSTIFICAT,
     ).length;
-    const absents = assistencies.filter((a) => a.estat === AssistenciaEstat.ABSENT).length;
-    const retards = assistencies.filter((a) => a.estat === AssistenciaEstat.RETARD).length;
+    const absents = assistencies.filter(
+      (a) => a.estat === AssistenciaEstat.ABSENT,
+    ).length;
+    const retards = assistencies.filter(
+      (a) => a.estat === AssistenciaEstat.RETARD,
+    ).length;
     const percentatge = total > 0 ? Math.round((presents / total) * 100) : 0;
 
     let ratxa = 0;
@@ -171,7 +181,7 @@ export class UsersService {
 
   async getModulStudents(modulId: number) {
     const modul = await this.modulRepositori.findOne({
-      where: { id_modul: modulId },
+      where: { id: modulId }, // Corrected id_modul to id
       relations: ['grup'],
     });
 
@@ -200,18 +210,24 @@ export class UsersService {
         id: alumne.id,
         nom: alumne.nom,
         email: alumne.email,
-        foto: (alumne as any).fotoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${alumne.nom}`,
+        foto:
+          (alumne as any).fotoUrl ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${alumne.nom}`,
         telefon: alumne.telefon || '600 000 000',
         estat: assistenciaAvui ? assistenciaAvui.estat : 'pendent',
-        faltas_acumuladas: historialAlumne.filter((h) => h.estat === AssistenciaEstat.ABSENT).length,
-        retrasos_acumulados: historialAlumne.filter((h) => h.estat === AssistenciaEstat.RETARD).length,
+        faltas_acumuladas: historialAlumne.filter(
+          (h) => h.estat === AssistenciaEstat.ABSENT,
+        ).length,
+        retrasos_acumulados: historialAlumne.filter(
+          (h) => h.estat === AssistenciaEstat.RETARD,
+        ).length,
       };
     });
   }
 
   async seedStudents(modulId: number) {
     const modul = await this.modulRepositori.findOne({
-      where: { id_modul: modulId },
+      where: { id: modulId }, // Corrected id_modul to id
       relations: ['grup'],
     });
 

@@ -1,20 +1,23 @@
-import {
-  Controller,
-  Request,
-  Post,
-  UseGuards,
-  Body,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() req) {
-    return this.authService.login(req);
+  async login(@Body() loginDto: any) {
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException('Credencials invàlides');
+    }
+
+    return this.authService.login(user);
   }
 
   @Post('recuperar-contrasenya')

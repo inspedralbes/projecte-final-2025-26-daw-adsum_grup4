@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(pass, user.contrasenyaHash))) {
       const { contrasenyaHash, ...result } = user;
       return result;
@@ -31,16 +31,22 @@ export class AuthService {
       rol: user.rol,
       nom: user.nom,
       cognoms: user.cognoms,
+      grup_id: user.grup_id,
     };
     return {
       access_token: this.jwtService.sign(payload),
-      user: payload,
+      user: {
+        id: user.id,
+        nom: user.nom,
+        email: user.email,
+        rol: user.rol,
+      },
     };
   }
 
   // Genera un token temporal i l'envia per email (simulat)
   async recuperarContrasenya(email: string) {
-    const usuari = await this.usersService.findOneByEmail(email);
+    const usuari = await this.usersService.findByEmail(email);
     if (!usuari) {
       // Per seguretat, no diem si l'email existeix o no
       return { missatge: 'Si el correu existeix, rebràs instruccions.' };
@@ -52,11 +58,6 @@ export class AuthService {
     const caducitat = new Date();
     caducitat.setHours(caducitat.getHours() + 1);
 
-    // Guardem al servei d'usuaris (caldrà afegir mètode update o fer-ho aquí si tenim repo)
-    // Com que AuthService utilitza UsersService, ho deleguem o ho fem directe si injectem el repo.
-    // Per simplicitat i no modificar massa UsersService ara, assumim que UsersService pot guardar o injectem Repo.
-    // Mirem com està AuthService... injecta UsersService.
-    // Modificaré UsersService per permetre guardar el token.
     await this.usersService.guardarTokenRecuperacio(
       usuari.id,
       token,
@@ -83,7 +84,7 @@ export class AuthService {
     }
 
     // Encriptem nova contrasenya
-    const salt = await bcrypt.genSalt();
+    const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(novaContrasenya, salt);
 
     // Actualitzem usuari i netegem token

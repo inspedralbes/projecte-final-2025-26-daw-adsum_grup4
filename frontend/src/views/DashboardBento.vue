@@ -1,9 +1,8 @@
 <template>
   <div class="space-y-6">
-    <!-- WELCOME CARD -->
     <section class="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
       <div class="relative z-10">
-        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, Andreia</h2>
+        <h2 class="text-3xl font-black tracking-tight leading-none italic uppercase">Hola, {{ user?.nom?.split(' ')[0] }}</h2>
         <p class="mt-2 text-indigo-100 font-bold text-xs uppercase tracking-widest">
           Sessió actual: {{ nextClass }}
         </p>
@@ -18,7 +17,7 @@
           <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
             <AppIcon name="calendar" class="w-7 h-7" />
           </div>
-          <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full">Real-Time</span>
+          <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full">En línia</span>
         </div>
         <div class="mt-8">
           <p class="text-4xl font-black text-slate-800 tracking-tighter">
@@ -86,6 +85,13 @@
 import { ref, onMounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
 const averageGrade = ref('0.0');
 const attendancePct = ref(0);
 const streak = ref(0);
@@ -96,8 +102,8 @@ const loading = ref(true);
 const fetchDashboardData = async () => {
   try {
     const [statsRes, avgRes] = await Promise.all([
-      fetch('http://localhost:3000/users/alumne/1/stats'),
-      fetch('http://localhost:3000/notes/alumne/1/mitjana')
+      fetch(`http://localhost:3000/users/alumne/${props.user.id}/stats`),
+      fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`)
     ]);
     
     const stats = await statsRes.json();

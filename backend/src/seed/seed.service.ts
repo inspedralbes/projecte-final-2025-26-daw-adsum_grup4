@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuari, UserRole, NivellEducatiu } from '../entities/usuari.entity';
@@ -12,12 +12,12 @@ import {
   Familiar,
 } from '../users/interfaces/dades-usuari.interface'; // Ensure interface is imported
 
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class SeedService {
+export class SeedService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Usuari)
     private readonly usuariRepo: Repository<Usuari>,
@@ -31,7 +31,47 @@ export class SeedService {
     private readonly sessioRepo: Repository<Sessio>,
     @InjectRepository(ConfiguracioCentre)
     private readonly configuracioCentreRepo: Repository<ConfiguracioCentre>,
-  ) {}
+  ) { }
+
+  async onApplicationBootstrap() {
+    const defaultUsers = [
+      {
+        email: 'alumne@adsum.cat',
+        nom: 'Alumne Demo',
+        password: 'password123',
+        rol: UserRole.ALUMNE,
+      },
+      {
+        email: 'professor@adsum.cat',
+        nom: 'Professor Demo',
+        password: 'password123',
+        rol: UserRole.PROFESSOR,
+      },
+      {
+        email: 'admin@adsum.cat',
+        nom: 'Admin Demo',
+        password: 'password123',
+        rol: UserRole.PROFESSOR,
+      },
+    ];
+
+    for (const u of defaultUsers) {
+      const exists = await this.usuariRepo.findOne({
+        where: { email: u.email },
+      });
+      if (!exists) {
+        const contrasenyaHash = await bcrypt.hash(u.password, 10);
+        const newUser = this.usuariRepo.create({
+          email: u.email,
+          nom: u.nom,
+          contrasenyaHash,
+          rol: u.rol,
+        });
+        await this.usuariRepo.save(newUser);
+        console.log(`Seeded user: ${u.email} with password: ${u.password}`);
+      }
+    }
+  }
 
   async executarSeed() {
     try {
@@ -124,7 +164,7 @@ export class SeedService {
   private async crearAdmins(adminsData: any[]) {
     const admins: Usuari[] = [];
     for (const d of adminsData) {
-      const salt = await bcrypt.genSalt();
+      const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(d.contrasenya, salt);
       const admin = this.usuariRepo.create({
         nom: d.nom,
@@ -142,7 +182,7 @@ export class SeedService {
   private async crearProfessors(profesData: any[]) {
     const professors: Usuari[] = [];
     for (const d of profesData) {
-      const salt = await bcrypt.genSalt();
+      const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(d.contrasenya, salt);
       const professor = this.usuariRepo.create({
         nom: d.nom,
@@ -181,7 +221,7 @@ export class SeedService {
     const isValidEmail = (email: string) => email && email.includes('@');
 
     for (const d of alumnesData) {
-      const salt = await bcrypt.genSalt();
+      const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(d.contrasenya, salt);
 
       // Busquem el grup pel codi

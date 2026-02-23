@@ -8,6 +8,7 @@ import { GroupsModule } from './groups/groups.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
+import { AuthModule } from './auth/auth.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -26,6 +27,7 @@ import { Modul } from './entities/modul.entity';
 import { Nota } from './entities/nota.entity';
 import { AttendanceToken } from './entities/attendance-token.entity';
 import { Dispositiu } from './entities/dispositiu.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -63,11 +65,13 @@ import { Dispositiu } from './entities/dispositiu.entity';
         synchronize: true,
       }),
     }),
+    TypeOrmModule.forFeature([Usuari]),
     UsersModule,
     GroupsModule,
     AttendanceModule,
     SeedModule,
     NotificacionsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

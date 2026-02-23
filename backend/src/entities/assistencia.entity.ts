@@ -29,7 +29,7 @@ export enum MetodeValidacio {
 @Entity('assistencies')
 @Unique(['sessio', 'alumne'])
 export class Assistencia {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
   @Column({ name: 'sessio_id', nullable: true })
