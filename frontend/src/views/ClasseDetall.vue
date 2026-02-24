@@ -342,6 +342,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { io } from 'socket.io-client';
 import AppIcon from '../components/shared/AppIcon.vue';
 
 const props = defineProps({
@@ -517,12 +518,27 @@ const generateGroups = () => {
   generatedGroups.value = groups;
 };
 
+let socket = null;
+
 onMounted(() => {
   fetchStudents();
+
+  socket = io('http://localhost:3000');
+  socket.emit('join_session', { sessionId: props.modul.id});
+  socket.on('student_joined', (assistencia) => {
+    const student = students.value.find(s => s.id === assistencia.alumne.id);
+    if (student) {
+      student.estat = assistencia.estat;
+      console.log(`${student.nom} ha ingressat amb estat ${student.estat}`);
+    }
+  })
 });
 
 onUnmounted(() => {
   if (timer) clearInterval(timer);
+  if (socket) {
+    socket.disconnect();
+  }
 });
 </script>
 

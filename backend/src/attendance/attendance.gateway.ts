@@ -5,7 +5,10 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
+import { forwardRef, Inject } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AttendanceService } from './attendance.service';
 
@@ -18,7 +21,10 @@ export class AttendanceGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
-  constructor(private readonly attendanceService: AttendanceService) {}
+  constructor(
+    @Inject(forwardRef(() => AttendanceService))
+    private readonly attendanceService: AttendanceService
+  ) {}
 
   afterInit() {
     console.log('Socket.io Initialized');
@@ -30,6 +36,28 @@ export class AttendanceGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Cliente desconectado: ${client.id}`);
+  }
+
+  @SubscribeMessage('join_session')
+  handleJoinSession(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { sessionId: number },
+  ) {
+    if (!payload.sessionId) {
+      return { status: 'error', message: 'sessionId requerit'};
+    }
+
+    const roomName = `session_${payload.sessionId}`;
+    client.join(roomName);
+
+    console.log(`Client ${client.id} ha entrat a la sala: ${roomName}`);
+    return { status: 'success', room: roomName };
+  }
+
+  emitStudentJoined(sessionId: number, assistenciaData: any) {
+    const roomName = `session_${sessionId}`;
+    this.server.to(roomName).emit('student_joined', assistenciaData);
+    console.log(`Event 'student_joined' emès a ${roomName}`);
   }
 
   @SubscribeMessage('ping')

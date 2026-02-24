@@ -3,6 +3,8 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Raw } from 'typeorm';
@@ -14,6 +16,7 @@ import {
 import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { Usuari } from '../entities/usuari.entity';
 import { AttendanceToken } from '../entities/attendance-token.entity';
+import { AttendanceGateway } from './attendance.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -29,6 +32,8 @@ export class AttendanceService {
     private usuariRepo: Repository<Usuari>,
     @InjectRepository(AttendanceToken)
     private readonly tokenRepository: Repository<AttendanceToken>,
+    @Inject(forwardRef(() => AttendanceGateway))
+    private readonly attendanceGateway: AttendanceGateway,
   ) { }
 
   async generateToken(
@@ -118,7 +123,7 @@ export class AttendanceService {
         estat: SessioEstat.ACTIVA,
         assignacioDocent: { grup: { id: alumneQuery.grup.id } },
       },
-      relations: ['assignacioDocent', 'assignacioDocent.grup'],
+      relations: ['assignacioDocent', 'assignacioDocent.grup', 'assignacioDocent.assignatura'],
     });
 
     if (!sessio) {
@@ -152,6 +157,17 @@ export class AttendanceService {
     });
 
     await this.assistenciaRepo.save(assistencia);
+
+    this.attendanceGateway.emitStudentJoined(sessio.assignacioDocent.assignatura.id, {
+      id: assistencia.id,
+      estat: assistencia.estat,
+      dataRegistre: assistencia.dataRegistre,
+      alumne: {
+        id: alumneQuery.id,
+        nom: alumneQuery.nom,
+        cognoms: alumneQuery.cognoms,
+      }
+    });
 
     return {
       success: true,
