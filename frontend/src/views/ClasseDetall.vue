@@ -343,8 +343,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppIcon from '../components/shared/AppIcon.vue';
+import { io } from 'socket.io-client';
 
 const props = defineProps({
+// ... (rest of props)
   user: { type: Object, required: true },
   modul: { type: Object, required: true }
 });
@@ -517,12 +519,29 @@ const generateGroups = () => {
   generatedGroups.value = groups;
 };
 
+let socket = null;
+
 onMounted(() => {
   fetchStudents();
+
+  // Configuración de WebSockets para tiempo real
+  socket = io('http://localhost:3000');
+  
+  socket.on('connect', () => {
+    console.log('Connectat al socket per sync en temps real');
+    socket.emit('join_module', props.modul.id);
+  });
+
+  socket.on('attendance_updated', (data) => {
+    console.log('Actualització d\'assistència rebuda!', data);
+    // Refresquem la llista completa per assegurar que les mètriques també s'actualitzen
+    fetchStudents();
+  });
 });
 
 onUnmounted(() => {
   if (timer) clearInterval(timer);
+  if (socket) socket.disconnect();
 });
 </script>
 

@@ -56,8 +56,8 @@ describe('UsersService', () => {
         it('should return students with pendent status when no attendance today', async () => {
             const fakeModul = { id_modul: 1, grup_id: 1 };
             const fakeStudents = [
-                { id_usuari: 1, nom: 'Marc Roig', email: 'marc@test.com', foto: null, telefon: null },
-                { id_usuari: 2, nom: 'Laia Sols', email: 'laia@test.com', foto: null, telefon: null },
+                { id: 1, nom: 'Marc Roig', email: 'marc@test.com', fotoUrl: null, telefon: null },
+                { id: 2, nom: 'Laia Sols', email: 'laia@test.com', fotoUrl: null, telefon: null },
             ];
 
             modulRepo.findOne.mockResolvedValue(fakeModul);
@@ -75,9 +75,9 @@ describe('UsersService', () => {
         it('should reflect today attendance status correctly', async () => {
             const today = new Date().toISOString().split('T')[0];
             const fakeModul = { id_modul: 1, grup_id: 1 };
-            const fakeStudents = [{ id_usuari: 10, nom: 'Test Student', email: 'test@test.com', foto: null, telefon: null }];
+            const fakeStudents = [{ id: 10, nom: 'Test Student', email: 'test@test.com', fotoUrl: null, telefon: null }];
             const fakeAttendance = [
-                { alumne_id: 10, modul_id: 1, data: today, estat: 'present' },
+                { alumne: { id: 10 }, modulId: 1, dataRegistre: today, estat: 'present' },
             ];
 
             modulRepo.findOne.mockResolvedValue(fakeModul);
@@ -92,11 +92,11 @@ describe('UsersService', () => {
         it('should count cumulative absences and lates', async () => {
             const today = new Date().toISOString().split('T')[0];
             const fakeModul = { id_modul: 1, grup_id: 1 };
-            const fakeStudents = [{ id_usuari: 5, nom: 'Anna Bosch', email: 'anna@test.com', foto: null, telefon: null }];
+            const fakeStudents = [{ id: 5, nom: 'Anna Bosch', email: 'anna@test.com', fotoUrl: null, telefon: null }];
             const history = [
-                { alumne_id: 5, modul_id: 1, data: '2025-01-01', estat: 'absent' },
-                { alumne_id: 5, modul_id: 1, data: '2025-01-02', estat: 'absent' },
-                { alumne_id: 5, modul_id: 1, data: '2025-01-03', estat: 'retard' },
+                { alumne: { id: 5 }, modulId: 1, dataRegistre: '2025-01-01', estat: 'absent' },
+                { alumne: { id: 5 }, modulId: 1, dataRegistre: '2025-01-02', estat: 'absent' },
+                { alumne: { id: 5 }, modulId: 1, dataRegistre: '2025-01-03', estat: 'retard' },
             ];
 
             modulRepo.findOne.mockResolvedValue(fakeModul);
@@ -104,6 +104,8 @@ describe('UsersService', () => {
             assistenciaRepo.find.mockResolvedValue(history);
 
             const result = await service.getModulStudents(1);
+            expect(result).not.toBeNull();
+            if (!result) return;
 
             expect(result[0].faltas_acumuladas).toBe(2);
             expect(result[0].retrasos_acumulados).toBe(1);

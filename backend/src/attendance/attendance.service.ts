@@ -3,6 +3,8 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Raw } from 'typeorm';
@@ -15,6 +17,7 @@ import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { Usuari } from '../entities/usuari.entity';
 import { AttendanceToken } from '../entities/attendance-token.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { AttendanceGateway } from './attendance.gateway';
 
 @Injectable()
 export class AttendanceService {
@@ -29,6 +32,8 @@ export class AttendanceService {
     private usuariRepo: Repository<Usuari>,
     @InjectRepository(AttendanceToken)
     private readonly tokenRepository: Repository<AttendanceToken>,
+    @Inject(forwardRef(() => AttendanceGateway))
+    private readonly attendanceGateway: AttendanceGateway,
   ) { }
 
   async generateToken(
@@ -153,6 +158,14 @@ export class AttendanceService {
 
     await this.assistenciaRepo.save(assistencia);
 
+    // Notificar al profesor en tiempo real
+    this.attendanceGateway.notifyAttendance(sessio.assignacioDocent.assignaturaId || 0, {
+      alumneId: alumneQuery.id,
+      nom: alumneQuery.nom,
+      estat: assistencia.estat,
+      data: assistencia.dataRegistre
+    });
+
     return {
       success: true,
       message: 'Assistència registrada correctament',
@@ -186,6 +199,15 @@ export class AttendanceService {
       });
     }
 
-    return await this.assistenciaRepo.save(assistencia);
+    const result = await this.assistenciaRepo.save(assistencia);
+
+    // Notificar al profesor en tiempo real
+    this.attendanceGateway.notifyAttendance(modulId, {
+      alumneId: alumneId,
+      estat: estat,
+      data: assistencia.dataRegistre
+    });
+
+    return result;
   }
 }

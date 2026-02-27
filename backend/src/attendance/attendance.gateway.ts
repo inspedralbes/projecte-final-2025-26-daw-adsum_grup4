@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AttendanceService } from './attendance.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -15,10 +16,12 @@ import { AttendanceService } from './attendance.service';
   },
 })
 export class AttendanceGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  constructor(private readonly attendanceService: AttendanceService) {}
+  constructor(
+    @Inject(forwardRef(() => AttendanceService))
+    private readonly attendanceService: AttendanceService,
+  ) { }
 
   afterInit() {
     console.log('Socket.io Initialized');
@@ -30,6 +33,14 @@ export class AttendanceGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Cliente desconectado: ${client.id}`);
+  }
+
+  @SubscribeMessage('join_module')
+  handleJoinModule(client: Socket, modulId: number) {
+    const room = `module_${modulId}`;
+    client.join(room);
+    console.log(`Cliente ${client.id} unido a sala ${room}`);
+    return { event: 'joined', room };
   }
 
   @SubscribeMessage('ping')
@@ -52,5 +63,11 @@ export class AttendanceGateway
       });
       console.log('Nou QR generat', tokenData.token);
     }, 5000);
+  }
+
+  notifyAttendance(modulId: number, data: any) {
+    const room = `module_${modulId}`;
+    this.server.to(room).emit('attendance_updated', data);
+    console.log(`Notificación de asistencia enviada a sala ${room}`);
   }
 }

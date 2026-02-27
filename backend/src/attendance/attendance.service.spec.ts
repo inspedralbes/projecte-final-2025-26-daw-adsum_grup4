@@ -3,37 +3,50 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AttendanceService } from './attendance.service';
 import { AttendanceToken } from '../entities/attendance-token.entity';
 import { Assistencia } from '../entities/assistencia.entity';
+import { Sessio } from '../entities/sessio.entity';
+import { Usuari } from '../entities/usuari.entity';
 import { Repository } from 'typeorm';
+import { AttendanceGateway } from './attendance.gateway';
 
-const mockTokenRepository = () => ({
+jest.mock('uuid', () => ({
+    v4: () => 'mock-uuid',
+}));
+
+const mockRepository = () => ({
     create: jest.fn(),
     save: jest.fn(),
     findOne: jest.fn(),
+    find: jest.fn(),
 });
 
-const mockAssistenciaRepository = () => ({
-    findOne: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
+const mockGateway = () => ({
+    notifyAttendance: jest.fn(),
 });
 
 describe('AttendanceService', () => {
     let service: AttendanceService;
     let tokenRepo: jest.Mocked<Repository<AttendanceToken>>;
     let assistenciaRepo: jest.Mocked<Repository<Assistencia>>;
+    let sessioRepo: jest.Mocked<Repository<Sessio>>;
+    let usuariRepo: jest.Mocked<Repository<Usuari>>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 AttendanceService,
-                { provide: getRepositoryToken(AttendanceToken), useFactory: mockTokenRepository },
-                { provide: getRepositoryToken(Assistencia), useFactory: mockAssistenciaRepository },
+                { provide: getRepositoryToken(AttendanceToken), useFactory: mockRepository },
+                { provide: getRepositoryToken(Assistencia), useFactory: mockRepository },
+                { provide: getRepositoryToken(Sessio), useFactory: mockRepository },
+                { provide: getRepositoryToken(Usuari), useFactory: mockRepository },
+                { provide: AttendanceGateway, useFactory: mockGateway },
             ],
         }).compile();
 
         service = module.get<AttendanceService>(AttendanceService);
         tokenRepo = module.get(getRepositoryToken(AttendanceToken));
         assistenciaRepo = module.get(getRepositoryToken(Assistencia));
+        sessioRepo = module.get(getRepositoryToken(Sessio));
+        usuariRepo = module.get(getRepositoryToken(Usuari));
     });
 
     it('should be defined', () => {
@@ -95,7 +108,7 @@ describe('AttendanceService', () => {
             assistenciaRepo.findOne.mockResolvedValue(existing as any);
             assistenciaRepo.save.mockResolvedValue({ ...existing, estat: 'present' } as any);
 
-            const result = await service.registerManualAttendance(1, 1, 'present');
+            await service.registerManualAttendance(1, 1, 'present');
 
             expect(assistenciaRepo.findOne).toHaveBeenCalled();
             expect(assistenciaRepo.save).toHaveBeenCalled();
