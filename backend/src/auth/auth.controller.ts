@@ -8,9 +8,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() loginDto: any) {
+    const password = loginDto.contrasenya || loginDto.password;
     const user = await this.authService.validateUser(
       loginDto.email,
-      loginDto.contrasenya,
+      password,
     );
 
     if (!user) {
