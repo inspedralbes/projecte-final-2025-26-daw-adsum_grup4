@@ -12,7 +12,7 @@ import { Inject, forwardRef } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   },
 })
 export class AttendanceGateway
