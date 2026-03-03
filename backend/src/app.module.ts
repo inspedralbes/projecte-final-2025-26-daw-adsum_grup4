@@ -9,6 +9,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -72,8 +73,9 @@ import { Dispositiu } from './entities/dispositiu.entity';
     SeedModule,
     NotificacionsModule,
     AuthModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

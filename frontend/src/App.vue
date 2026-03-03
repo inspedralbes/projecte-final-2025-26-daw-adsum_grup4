@@ -26,15 +26,18 @@
         </div>
       </div>
 
-      <div v-else-if="currentUser?.rol === 'admin'">
-        <div v-if="activeView === 'home'" class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
-          <p class="text-4xl mb-4">👑</p>
-          <p class="font-bold uppercase tracking-widest text-xs">Panel de Administrador</p>
-          <p class="text-sm mt-1">Benvingut, {{ currentUser.nom }}. Les eines de gestión estaran disponibles aviat.</p>
-        </div>
+      <div v-else-if="currentUser?.rol === 'admin'" class="w-full">
+        <VistaTaulerAnalitica v-if="activeView === 'home'" />
+        <VistaGestioUsuaris v-else-if="activeView === 'users'" />
+        <VistaSincronitzacio v-else-if="activeView === 'center'" />
+        <VistaInfraestructura v-else-if="activeView === 'iot'" />
+        <VistaInventariRecursos v-else-if="activeView === 'resources'" />
+        <VistaControlIA v-else-if="activeView === 'ia'" />
+        <VistaOperacionsSistema v-else-if="activeView === 'system'" />
+        
         <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
           <p class="text-4xl mb-4">🚧</p>
-          <p class="font-bold uppercase tracking-widest text-xs">Secció d'Admin en construcció</p>
+          <p class="font-bold uppercase tracking-widest text-xs">Secció d'Admin desconeguda</p>
         </div>
       </div>
     </Transition>
@@ -49,6 +52,15 @@ import DashboardBento from './views/DashboardBento.vue';
 import PerformanceView from './views/PerformanceView.vue';
 import DashboardProfessor from './views/DashboardProfessor.vue';
 import ClasseDetall from './views/ClasseDetall.vue';
+
+// Admin Views
+import VistaTaulerAnalitica from './views/admin/VistaTaulerAnalitica.vue';
+import VistaGestioUsuaris from './views/admin/VistaGestioUsuaris.vue';
+import VistaSincronitzacio from './views/admin/VistaSincronitzacio.vue';
+import VistaInfraestructura from './views/admin/VistaInfraestructura.vue';
+import VistaInventariRecursos from './views/admin/VistaInventariRecursos.vue';
+import VistaControlIA from './views/admin/VistaControlIA.vue';
+import VistaOperacionsSistema from './views/admin/VistaOperacionsSistema.vue';
 
 const isLoggedIn = ref(!!localStorage.getItem('access_token'));
 const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));

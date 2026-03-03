@@ -107,6 +107,10 @@ const navItems = computed(() => {
       { id: 'home', label: 'Inici', icon: 'home' },
       { id: 'users', label: 'Usuaris', icon: 'users' },
       { id: 'center', label: 'Centre', icon: 'settings' },
+      { id: 'iot', label: 'Lectors', icon: 'door' },
+      { id: 'resources', label: 'Recursos', icon: 'book' },
+      { id: 'ia', label: 'G. IA', icon: 'stats' },
+      { id: 'system', label: 'Sistema', icon: 'settings' }
     ];
   }
   return [
