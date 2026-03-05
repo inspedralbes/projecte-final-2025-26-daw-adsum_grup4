@@ -7,7 +7,12 @@ import {
     Param,
     Body,
     UseGuards,
+    UseInterceptors,
+    UploadedFile,
+    Res
 } from '@nestjs/common';
+import type { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 import { Usuari } from '../entities/usuari.entity';
@@ -35,14 +40,29 @@ export class AdminController {
         return this.adminService.eliminarUsuari(+id);
     }
 
+    @Post('usuaris')
+    async crearUsuari(@Body() dades: Partial<Usuari>) {
+        return this.adminService.crearUsuari(dades);
+    }
+
     @Get('analitica/absentisme')
     async obtenirAnalitica() {
         return this.adminService.getAnaliticaAbsentisme();
     }
 
     @Post('sincronitzacio/importar')
-    async importarDades(@Body() payload: any) {
-        return this.adminService.importarDadesProcess(payload);
+    @UseInterceptors(FileInterceptor('file'))
+    async importarDades(@UploadedFile() file: any) {
+        if (!file) throw new Error("No s'ha penjat cap arxiu.");
+        return this.adminService.importarDadesProcess(file);
+    }
+
+    @Get('sincronitzacio/exportar')
+    async exportarDades(@Res() res: Response) {
+        const dadesCSV = await this.adminService.exportarGoogleSheets();
+        res.header('Content-Type', 'text/csv');
+        res.attachment('adsum_export_sheets.csv');
+        return res.send(dadesCSV);
     }
 
     // --- FASE 2 ---
@@ -50,6 +70,11 @@ export class AdminController {
     @Get('infra/lectors')
     async obtenirEstatLectors() {
         return this.adminService.obtenirEstatLectors();
+    }
+
+    @Get('infra/usuaris-actius')
+    async obtenirUsuarisActius() {
+        return this.adminService.obtenirUsuarisActiusAra();
     }
 
     @Get('recursos')
@@ -62,6 +87,11 @@ export class AdminController {
         return this.adminService.canviarEstatRecurs(+id, estat);
     }
 
+    @Post('recursos')
+    async afegirRecurs(@Body() dades: any) {
+        return this.adminService.afegirRecurs(dades);
+    }
+
     @Get('ia/config')
     async getIAConfig() {
         return this.adminService.getIAConfig();
@@ -70,6 +100,11 @@ export class AdminController {
     @Put('ia/config')
     async actualitzarPromptIA(@Body('prompt') prompt: string) {
         return this.adminService.actualitzarPromptIA(prompt);
+    }
+
+    @Post('ia/chat')
+    async enviarMissatgeIA(@Body('missatge') missatge: string) {
+        return this.adminService.enviarMissatgeIA(missatge);
     }
 
     @Post('sistema/tancar-curs')

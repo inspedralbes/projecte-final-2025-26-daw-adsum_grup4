@@ -14,13 +14,18 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
       <!-- Importació -->
-      <div class="bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm p-8 text-center transition-all hover:border-indigo-400 hover:bg-slate-50">
-        <div class="mb-4 text-slate-400 font-bold uppercase tracking-widest text-xs">Pujar Registres Noi</div>
-        <p class="text-sm font-medium text-slate-600 mb-6">
-          Arrossega un arxiu CSV/Excel ací per iniciar la càrrega massiva d'alumnes.
-        </p>
-        <button @click="simularImportacio" :disabled="loading" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-sm shadow-indigo-200 disabled:opacity-50">
-          {{ loading ? 'Processant...' : 'Selecciona Arxiu' }}
+      <div class="bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm p-8 text-center transition-all hover:border-indigo-400 hover:bg-slate-50 flex flex-col justify-between">
+        <div>
+          <div class="mb-4 text-slate-400 font-bold uppercase tracking-widest text-xs">Pujar Registres Nous</div>
+          <p class="text-sm font-medium text-slate-600 mb-6">
+            Arrossega un arxiu CSV/Excel ací per iniciar la càrrega massiva d'alumnes o selecciona'l del teu equip.
+          </p>
+        </div>
+        
+        <input type="file" ref="fileInput" accept=".csv, .xlsx, .xls" class="hidden" @change="alSeleccionarArxiu" />
+        
+        <button @click="triggerFileInput" :disabled="loadingImport" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-sm shadow-indigo-200 disabled:opacity-50">
+          {{ loadingImport ? 'Pujant i Processant...' : 'Explorar Arxius' }}
         </button>
       </div>
 
@@ -29,11 +34,14 @@
         <div>
           <div class="mb-4 text-slate-400 font-bold uppercase tracking-widest text-xs text-center">Tancar i Exportar</div>
           <p class="text-sm font-medium text-slate-600 mb-6 text-center">
-            Aboca tot el registre d'assistència actual al document de Google Sheets del centre forçant la sincronització ara.
+            Aboca tot el registre d'assistència actual de l'aplicació en un document per a Google Sheets forçant la sincronització ara.
           </p>
         </div>
-        <button class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2">
-          Exportar cap a Google Sheets
+        <button @click="alExportarGoogleSheets" :disabled="loadingExport" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2 mt-auto disabled:opacity-50 disabled:cursor-wait">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>          
+          {{ loadingExport ? 'Generant CSV/Excel...' : 'Exportar cap a Google Sheets' }}
         </button>
       </div>
     </div>
@@ -51,34 +59,88 @@
 <script setup>
 import { ref } from 'vue';
 
-const loading = ref(false);
+const loadingImport = ref(false);
+const loadingExport = ref(false);
 const missatge = ref(null);
+const fileInput = ref(null);
 
-const simularImportacio = async () => {
-  loading.value = true;
+const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const alSeleccionarArxiu = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  loadingImport.value = true;
   missatge.value = null;
+
+  const formData = new FormData();
+  formData.append('file', file);
 
   try {
     const res = await fetch('/api/admin/sincronitzacio/importar', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        // A FormData el navegador posa l'Content-Type amb el boundary
       },
-      body: JSON.stringify({ file: 'mock.csv' })
+      body: formData
     });
     
-    if(!res.ok) throw new Error('Error al connectar al servidor');
+    if(!res.ok) {
+      const resp = await res.json();
+      throw new Error(resp.message || 'Error en processar un arxiu en el costat servidor');
+    }
     
     const dades = await res.json();
     missatge.value = { 
       tipus: 'exit', 
-      text: `${dades.missatge}. S'han importat ${dades.alumnesImportats} alumnes nous i actualitzat ${dades.actualitzats}.` 
+      text: `${dades.missatge} (Llegits ${dades.mida} bytes de ${file.name}).` 
     };
   } catch (err) {
     missatge.value = { tipus: 'error', text: err.message };
   } finally {
-    loading.value = false;
+    loadingImport.value = false;
+    if (fileInput.value) fileInput.value.value = ''; // Reset l'input
+    setTimeout(() => missatge.value = null, 7000);
+  }
+};
+
+const alExportarGoogleSheets = async () => {
+  loadingExport.value = true;
+  missatge.value = null;
+
+  try {
+    const res = await fetch('/api/admin/sincronitzacio/exportar', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      }
+    });
+
+    if(!res.ok) throw new Error('Fallada generant l\'exportació de dades cap a Google Sheets');
+
+    // Processem com a descàrrega de Blob
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'adsum_export_sheets.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    
+    missatge.value = { 
+      tipus: 'exit', 
+      text: "L'arxiu d'integració Google Sheets ha completat de descarregar-se al teu equip." 
+    };
+  } catch(err) {
+    missatge.value = { tipus: 'error', text: err.message };
+  } finally {
+    loadingExport.value = false;
     setTimeout(() => missatge.value = null, 5000);
   }
 };

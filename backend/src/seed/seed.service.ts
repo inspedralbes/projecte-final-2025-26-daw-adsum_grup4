@@ -133,12 +133,15 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async esborrarTot() {
+    await this.sessioRepo.query('SET FOREIGN_KEY_CHECKS = 0;');
     await this.sessioRepo.createQueryBuilder().delete().execute();
     await this.assignacioDocentRepo.createQueryBuilder().delete().execute();
     await this.assignaturaRepo.createQueryBuilder().delete().execute();
+    await this.usuariRepo.query('DELETE FROM relacio_familia_alumnes').catch(() => { });
     await this.usuariRepo.createQueryBuilder().delete().execute();
     await this.grupRepo.createQueryBuilder().delete().execute();
     await this.configuracioCentreRepo.createQueryBuilder().delete().execute();
+    await this.sessioRepo.query('SET FOREIGN_KEY_CHECKS = 1;');
   }
 
   private async crearConfiguracio() {
