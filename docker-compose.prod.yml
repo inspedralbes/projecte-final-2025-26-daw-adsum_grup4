@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    container_name: adsum_db_prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # Solo está accesible en la red interna, no mapeamos puertos al host
+    # ports:
+    #   - "3306:3306"
+    volumes:
+      - db_data_prod:/var/lib/mysql
+    networks:
+      - adsum_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: adsum_pma_prod
+    restart: always
+    depends_on:
+      - db
+    ports:
+      # Puerto externo configurable, interno 80
+      - "${PMA_PORT_EXTERNAL:-8080}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    networks:
+      - adsum_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    image: adsum-backend-prod
+    container_name: adsum_backend_prod
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=production
+    depends_on:
+      - db
+    networks:
+      - adsum_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    image: adsum-frontend-prod
+    container_name: adsum_frontend_prod
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - adsum_network
+
+networks:
+  adsum_network:
+    driver: bridge
+
+volumes:
+  db_data_prod:
