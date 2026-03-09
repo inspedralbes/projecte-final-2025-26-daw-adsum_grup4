@@ -60,7 +60,8 @@ let timer = null;
 const status = ref('Desconnectat');
 
 onMounted(() => {
-  const socket = io('http://localhost:3000');
+  const socketUrl = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000';
+  const socket = io(socketUrl);
   const startCountdown = () => {
     if (timer) clearInterval(timer);
     timeLeft.value = 5.0;

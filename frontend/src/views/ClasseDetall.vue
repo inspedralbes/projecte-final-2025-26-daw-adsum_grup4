@@ -342,6 +342,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import AppIcon from '../components/shared/AppIcon.vue';
 import { io } from 'socket.io-client';
 
@@ -430,7 +431,7 @@ const codeDisplay = computed(() => {
 const generateCode = async () => {
   loadingCode.value = true;
   try {
-    const res = await fetch('http://localhost:3000/attendance/generate', {
+    const res = await fetch(`${API_BASE_URL}/attendance/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -454,7 +455,7 @@ const generateCode = async () => {
 
 const fetchStudents = async () => {
   try {
-    const res = await fetch(`http://localhost:3000/api/usuaris/modul/${props.modul.id}/students`);
+    const res = await fetch(`${API_BASE_URL}/api/usuaris/modul/${props.modul.id}/students`);
     students.value = await res.json();
   } catch (e) {
     // Fallback Mock data
@@ -478,7 +479,7 @@ const fetchStudents = async () => {
 
 const seedData = async () => {
   try {
-    await fetch(`http://localhost:3000/api/usuaris/modul/${props.modul.id}/seed`, { method: 'POST' });
+    await fetch(`${API_BASE_URL}/api/usuaris/modul/${props.modul.id}/seed`, { method: 'POST' });
     await fetchStudents();
   } catch (e) {
     console.error('Error seeding data');
@@ -490,7 +491,7 @@ const updateStatus = async (student, newStatus) => {
   student.estat = newStatus;
   
   try {
-    await fetch('http://localhost:3000/attendance/register', {
+    await fetch(`${API_BASE_URL}/attendance/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -525,7 +526,9 @@ onMounted(() => {
   fetchStudents();
 
   // Configuración de WebSockets para tiempo real
-  socket = io('http://localhost:3000');
+  // En producción usamos el mismo host. En desarrollo localhost:3000
+  const socketUrl = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000';
+  socket = io(socketUrl);
   
   socket.on('connect', () => {
     console.log('Connectat al socket per sync en temps real');

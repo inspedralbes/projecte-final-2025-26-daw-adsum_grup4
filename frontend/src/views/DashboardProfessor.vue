@@ -36,6 +36,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import AppIcon from '../components/shared/AppIcon.vue';
 
 const props = defineProps({
@@ -50,7 +51,7 @@ const moduls = ref([]);
 
 onMounted(async () => {
   try {
-    const res = await fetch(`http://localhost:3000/api/usuaris/professor/${props.user.id}/moduls`);
+    const res = await fetch(`${API_BASE_URL}/api/usuaris/professor/${props.user.id}/moduls`);
     moduls.value = await res.json();
   } catch (e) {
     console.error('Error fetching moduls:', e);

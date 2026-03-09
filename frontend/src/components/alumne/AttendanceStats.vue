@@ -79,6 +79,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 
 const loading = ref(true);
 const error = ref(null);
@@ -90,7 +91,7 @@ const ALUMNE_ID = 2;
 
 onMounted(async () => {
   try {
-    const res = await fetch(`http://localhost:3000/alumne/${ALUMNE_ID}/stats`);
+    const res = await fetch(`${API_BASE_URL}/alumne/${ALUMNE_ID}/stats`);
     if (!res.ok) throw new Error('Error al carregar les dades');
     const data = await res.json();
     stats.value = data.stats;

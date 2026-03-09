@@ -83,6 +83,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import AppIcon from '../components/shared/AppIcon.vue';
 
 const props = defineProps({
@@ -102,8 +103,8 @@ const loading = ref(true);
 const fetchDashboardData = async () => {
   try {
     const [statsRes, avgRes] = await Promise.all([
-      fetch(`http://localhost:3000/api/usuaris/${props.user.id}/stats`),
-      fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`)
+      fetch(`${API_BASE_URL}/api/usuaris/${props.user.id}/stats`),
+      fetch(`${API_BASE_URL}/notes/alumne/${props.user.id}/mitjana`)
     ]);
     
     const stats = await statsRes.json();

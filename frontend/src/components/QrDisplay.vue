@@ -64,7 +64,8 @@ const startCountdown = () => {
 };
 
 onMounted(() => {
-  socket = io('http://localhost:3000');
+  const socketUrl = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000';
+  socket = io(socketUrl);
 
   socket.on('connect', () => {
     status.value = 'Connectat al Backend';

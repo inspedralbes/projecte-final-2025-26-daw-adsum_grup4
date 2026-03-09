@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import AppIcon from '../components/shared/AppIcon.vue';
 
 const props = defineProps({
@@ -71,8 +72,8 @@ const loading = ref(true);
 const fetchNotes = async () => {
   try {
     const [notesRes, avgRes] = await Promise.all([
-      fetch(`http://localhost:3000/notes/alumne/${props.user.id}`),
-      fetch(`http://localhost:3000/notes/alumne/${props.user.id}/mitjana`)
+      fetch(`${API_BASE_URL}/notes/alumne/${props.user.id}`),
+      fetch(`${API_BASE_URL}/notes/alumne/${props.user.id}/mitjana`)
     ]);
     notes.value = await notesRes.json();
     const avgData = await avgRes.json();

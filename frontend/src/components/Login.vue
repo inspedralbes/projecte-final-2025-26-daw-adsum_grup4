@@ -62,6 +62,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 
 const email = ref('');
 const password = ref('');
@@ -75,7 +76,7 @@ const handleLogin = async () => {
     errorMessage.value = '';
     
     try {
-        const response = await fetch('http://localhost:3000/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
