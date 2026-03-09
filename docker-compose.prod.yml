@@ -41,8 +41,9 @@ services:
     image: adsum-backend-prod
     container_name: adsum_backend_prod
     restart: always
-    ports:
-      - "${BACKEND_PORT:-3000}:3000"
+    # Puertos ocultos tras el proxy de Nginx
+    # ports:
+    #   - "${BACKEND_PORT:-3000}:3000"
     environment:
       - DB_HOST=db
       - DB_PORT=3306
@@ -50,6 +51,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - NODE_ENV=production
+      - FRONTEND_URL=http://adsum.daw.inspedralbes.cat
     depends_on:
       - db
     networks:
