@@ -50,6 +50,7 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
       - NODE_ENV=production
       - FRONTEND_URL=http://adsum.daw.inspedralbes.cat
     depends_on:

@@ -21,7 +21,7 @@ const commands = [
   'apt-get update',
   'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin git',
   'if [ ! -d "adsum-prod" ]; then git clone -b dev https://github.com/inspedralbes/projecte-final-2025-26-daw-adsum_grup4.git adsum-prod; else cd adsum-prod && git fetch origin && git reset --hard origin/dev; fi',
-  'cd adsum-prod && cp -n .env.example .env || true',
+  'cd adsum-prod && echo "DB_USERNAME=adsum_user\nDB_PASSWORD=adsum_pass\nDB_NAME=adsum_db\nJWT_SECRET=supersecretpassword\nFRONTEND_PORT=80\nBACKEND_PORT=3000\nPMA_PORT_EXTERNAL=8080" > .env',
   'systemctl enable docker && systemctl restart docker || true',
   'cd adsum-prod && docker compose -f docker-compose.prod.yml down || true',
   'cd adsum-prod && docker compose -f docker-compose.prod.yml up -d --build',

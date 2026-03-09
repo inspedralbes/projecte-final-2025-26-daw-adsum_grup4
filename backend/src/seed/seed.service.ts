@@ -58,11 +58,13 @@ export class SeedService implements OnApplicationBootstrap {
       },
     ];
 
+    console.log('[DEBUG SEED] Iniciant verificació d\'usuaris per defecte...');
     for (const u of defaultUsers) {
       const exists = await this.usuariRepo.findOne({
         where: { email: u.email },
       });
       if (!exists) {
+        console.log(`[DEBUG SEED] Creant usuari per defecte: ${u.email}`);
         const contrasenyaHash = await bcrypt.hash(u.password, 10);
         const newUser = this.usuariRepo.create({
           email: u.email,
@@ -73,9 +75,12 @@ export class SeedService implements OnApplicationBootstrap {
           esActiu: true,
         });
         await this.usuariRepo.save(newUser);
-        console.log(`Seeded user: ${u.email} with password: ${u.password}`);
+        console.log(`[DEBUG SEED] Usuari creat correctament: ${u.email}`);
+      } else {
+        console.log(`[DEBUG SEED] L'usuari ja existeix: ${u.email}`);
       }
     }
+    console.log('[DEBUG SEED] Verificació d\'usuaris finalitzada.');
   }
 
   async executarSeed() {
