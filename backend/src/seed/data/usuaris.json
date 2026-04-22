@@ -1,0 +1,115 @@
+{
+    "admins": [
+        {
+            "nom": "Administrador",
+            "cognoms": "Adsum",
+            "email": "admin@adsum.cat",
+            "contrasenya": "admin123"
+        }
+    ],
+    "professors": [
+        {
+            "nom": "Joan",
+            "cognoms": "Professor",
+            "email": "joan@adsum.cat",
+            "contrasenya": "profe123",
+            "departament": "Informàtica"
+        },
+        {
+            "nom": "Marta",
+            "cognoms": "Professor",
+            "email": "marta@adsum.cat",
+            "contrasenya": "profe123",
+            "departament": "Informàtica"
+        },
+        {
+            "nom": "Pere",
+            "cognoms": "Professor",
+            "email": "pere@adsum.cat",
+            "contrasenya": "profe123",
+            "departament": "Informàtica"
+        }
+    ],
+    "alumnes": [
+        {
+            "nom": "Marc",
+            "cognoms": "Garcia",
+            "email": "marc.garcia@adsum.cat",
+            "contrasenya": "alumne123",
+            "nivell_educatiu": "cicles",
+            "grup_codi": "2DAW-A",
+            "gamificacio": {
+                "ratxa_actual_dies": 12,
+                "ratxa_maxima_dies": 20,
+                "punts_acumulats": 1250,
+                "nivell_actual": 5,
+                "insignies_desbloquejades": [
+                    {
+                        "id_insignia": "puntualitat_ferro",
+                        "data_obtencio": "2024-10-15"
+                    },
+                    {
+                        "id_insignia": "assistencia_perfecta_mes",
+                        "data_obtencio": "2024-11-01"
+                    }
+                ]
+            },
+            "configuracio": {
+                "tema_interficie": "fosc",
+                "idioma_preferit": "ca",
+                "accessibilitat": {
+                    "alt_contrast": false,
+                    "mida_lletra_gran": false
+                },
+                "notificacions": {
+                    "avisos_falta_immediats": true,
+                    "resum_setmanal_email": true
+                }
+            },
+            "familia": [
+                {
+                    "nom_complet": "Marta Soler",
+                    "parentiu": "Mare",
+                    "telefon_principal": "600123456",
+                    "autoritza_sortides_sol": true,
+                    "contacte_emergencia_principal": true
+                },
+                {
+                    "nom_complet": "Jordi Vila",
+                    "parentiu": "Pare",
+                    "telefon_principal": "600987654",
+                    "autoritza_sortides_sol": false,
+                    "contacte_emergencia_principal": false
+                }
+            ]
+        },
+        {
+            "nom": "Laia",
+            "cognoms": "Martínez",
+            "email": "laia.martinez@adsum.cat",
+            "contrasenya": "alumne123",
+            "nivell_educatiu": "cicles",
+            "grup_codi": "1DAW-A",
+            "gamificacio": {
+                "ratxa_actual_dies": 3,
+                "ratxa_maxima_dies": 5,
+                "punts_acumulats": 450,
+                "nivell_actual": 2,
+                "insignies_desbloquejades": []
+            },
+            "configuracio": {
+                "tema_interficie": "clar",
+                "idioma_preferit": "ca",
+                "accessibilitat": {
+                    "alt_contrast": false,
+                    "mida_lletra_gran": false
+                },
+                "notificacions": {
+                    "avisos_falta_immediats": true,
+                    "resum_setmanal_email": false
+                }
+            },
+            "familia": []
+        }
+    ]
+}

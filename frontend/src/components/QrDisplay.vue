@@ -1,0 +1,94 @@
+<template>
+  <div class="bg-white p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(30,41,59,0.05)] border border-slate-100 max-w-sm w-full text-center">
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-4">ADSUM QR</h1>
+    <p class="text-gray-500 text-sm mb-6">Escaneja per marcar assistència</p>
+    
+    <div class="bg-slate-50 p-6 rounded-3xl mb-8 flex flex-col items-center justify-center border border-slate-100 shadow-inner">
+      <qrcode-vue :value="qrValue" :size="200" level="H" render-as="svg" />
+      <div class="mt-4 w-full">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Token de verificació</p>
+        <!-- Eliminamos espacios y saltos de línea dentro del code para que no se copien caracteres basura -->
+        <code class="text-[10px] font-mono text-indigo-600 font-bold break-all bg-white py-2 px-3 rounded-xl border border-slate-100 block shadow-sm select-all">{{ qrValue }}</code>
+        <p class="text-[9px] text-slate-300 mt-2">Fes doble clic per seleccionar-ho tot</p>
+      </div>
+    </div>
+    
+    <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
+      <div 
+        class="bg-indigo-600 h-full transition-all duration-100 ease-linear"
+        :style="{ width: (timeLeft / 5) * 100 + '%' }"
+      ></div>
+    </div>
+
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+      S'actualitza en {{ Math.ceil(timeLeft) }}s
+    </p>
+
+    <div class="mt-8 pt-6 border-t border-gray-100">
+      <p :class="status.includes('Connectat') ? 'text-green-500' : 'text-red-500'" class="text-xs font-mono font-bold">
+        ● {{ status }}
+      </p>
+    </div>
+    
+    <div class="mt-4">
+        <button @click="$emit('logout')" class="text-xs text-slate-400 hover:text-slate-600 underline cursor-pointer">
+            Tancar sessió
+        </button>
+    </div>
+
+  </div>
+</template>
+
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue';
+import { io } from 'socket.io-client';
+import QrcodeVue from 'qrcode.vue';
+
+const qrValue = ref('esperant...');
+const timeLeft = ref(5);
+let timer = null;
+let socket = null;
+
+const status = ref('Desconnectat');
+
+const startCountdown = () => {
+  if (timer) clearInterval(timer);
+  timeLeft.value = 5.0;
+  timer = setInterval(() => {
+    if (timeLeft.value > 0.1) {
+      timeLeft.value -= 0.1;
+    } else {
+      timeLeft.value = 0;
+    }
+  }, 100);
+};
+
+onMounted(() => {
+  const socketUrl = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000';
+  socket = io(socketUrl);
+
+  socket.on('connect', () => {
+    status.value = 'Connectat al Backend';
+    console.log('Conectat amb ID:', socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    status.value = 'Desconnectat';
+    qrValue.value = 'error';
+    if (timer) clearInterval(timer);
+  });
+
+  socket.on('new_qr', (data) => {
+    console.log('Nou QR rebut!', data.token);
+    qrValue.value = data.token;
+    startCountdown();
+  });
+});
+
+onUnmounted(() => {
+    if (socket) socket.disconnect();
+    if (timer) clearInterval(timer);
+});
+
+defineEmits(['logout']);
+</script>
