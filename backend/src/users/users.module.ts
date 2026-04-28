@@ -26,4 +26,4 @@ import { NotesController } from './notes.controller';
   providers: [UsersService, NotesService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

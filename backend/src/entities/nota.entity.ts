@@ -33,6 +33,6 @@ export class Nota {
   @Column({ nullable: true })
   comentari: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   data_registre: Date;
 }

@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as crypto from 'crypto';
-import {
-  Injectable,
-  UnauthorizedException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -13,7 +12,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     console.log(`[DEBUG AUTH] Intentant validar usuari: ${email}`);
@@ -28,13 +27,13 @@ export class AuthService {
     console.log(`[DEBUG AUTH] Usuari trobat. Match contrasenya: ${isMatch}`);
 
     if (isMatch) {
-      const { contrasenyaHash, ...result } = user;
+      const { contrasenyaHash: _unused, ...result } = user;
       return result;
     }
     return null;
   }
 
-  async login(user: any) {
+  login(user: any) {
     const payload = {
       email: user.email,
       sub: user.id,

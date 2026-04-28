@@ -9,7 +9,9 @@ import { AttendanceController } from './attendance.controller';
 import { AttendanceToken } from '../entities/attendance-token.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Assistencia, Sessio, Usuari, AttendanceToken])],
+  imports: [
+    TypeOrmModule.forFeature([Assistencia, Sessio, Usuari, AttendanceToken]),
+  ],
 
   controllers: [AttendanceController],
   providers: [AttendanceService, AttendanceGateway],

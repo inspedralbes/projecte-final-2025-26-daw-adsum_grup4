@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { Sessio } from './sessio.entity';
 import { Usuari } from './usuari.entity';
-import { Assignatura } from './assignatura.entity';
 import { Modul } from './modul.entity';
 
 export enum AssistenciaEstat {
@@ -65,7 +64,6 @@ export class Assistencia {
   dataRegistre: Date;
 
   @Column({
-    type: 'enum',
     enum: AssistenciaEstat,
     default: AssistenciaEstat.PRESENT,
   })
@@ -73,7 +71,6 @@ export class Assistencia {
 
   @Column({
     name: 'metode_validacio',
-    type: 'enum',
     enum: MetodeValidacio,
   })
   metodeValidacio: MetodeValidacio;

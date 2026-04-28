@@ -41,7 +41,6 @@ export class Justificacio {
   arxiuUrl: string;
 
   @Column({
-    type: 'enum',
     enum: JustificacioEstat,
     default: JustificacioEstat.PENDENT,
   })

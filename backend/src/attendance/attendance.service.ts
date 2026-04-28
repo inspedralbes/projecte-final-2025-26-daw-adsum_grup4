@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as crypto from 'crypto';
 import {
   Injectable,
@@ -34,7 +35,7 @@ export class AttendanceService {
     private readonly tokenRepository: Repository<AttendanceToken>,
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
-  ) { }
+  ) {}
 
   async generateToken(
     modulId?: number,
@@ -159,12 +160,15 @@ export class AttendanceService {
     await this.assistenciaRepo.save(assistencia);
 
     // Notificar al profesor en tiempo real
-    this.attendanceGateway.notifyAttendance(sessio.assignacioDocent.assignaturaId || 0, {
-      alumneId: alumneQuery.id,
-      nom: alumneQuery.nom,
-      estat: assistencia.estat,
-      data: assistencia.dataRegistre
-    });
+    this.attendanceGateway.notifyAttendance(
+      sessio.assignacioDocent.assignaturaId || 0,
+      {
+        alumneId: alumneQuery.id,
+        nom: alumneQuery.nom,
+        estat: assistencia.estat,
+        data: assistencia.dataRegistre,
+      },
+    );
 
     return {
       success: true,
@@ -205,7 +209,7 @@ export class AttendanceService {
     this.attendanceGateway.notifyAttendance(modulId, {
       alumneId: alumneId,
       estat: estat,
-      data: assistencia.dataRegistre
+      data: assistencia.dataRegistre,
     });
 
     return result;

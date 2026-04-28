@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -24,4 +25,4 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   providers: [AuthService, JwtStrategy],
   exports: [AuthService, PassportModule, JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}
