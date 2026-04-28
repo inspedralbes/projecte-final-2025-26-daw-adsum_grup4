@@ -2,34 +2,38 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as crypto from 'crypto';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { LogsService } from '../logs/logs.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    @Inject(LogsService) private logger: LogsService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
-    console.log(`[DEBUG AUTH] Intentant validar usuari: ${email}`);
+  async validateUser(email: string, pass: string, ip?: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      console.log(`[DEBUG AUTH] Usuari no trobat: ${email}`);
+      this.logger.loginFailed(email, 'USER_NOT_FOUND', ip);
       return null;
     }
 
     const isMatch = await bcrypt.compare(pass, user.contrasenyaHash);
-    console.log(`[DEBUG AUTH] Usuari trobat. Match contrasenya: ${isMatch}`);
 
     if (isMatch) {
+      this.logger.loginSuccess(user.id, email, ip);
       const { contrasenyaHash: _unused, ...result } = user;
       return result;
     }
+    
+    this.logger.loginFailed(email, 'INVALID_PASSWORD', ip);
     return null;
   }
 

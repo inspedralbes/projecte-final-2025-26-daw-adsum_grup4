@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   Unique,
+  Index,
 } from 'typeorm';
 import { Sessio } from './sessio.entity';
 import { Usuari } from './usuari.entity';
@@ -27,6 +28,8 @@ export enum MetodeValidacio {
 
 @Entity('assistencies')
 @Unique(['sessio', 'alumne'])
+@Index('idx_assistencia_data', ['dataRegistre'])
+@Index('idx_assistencia_modul_data', ['modulId', 'dataRegistre'])
 export class Assistencia {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;

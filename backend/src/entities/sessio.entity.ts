@@ -6,6 +6,7 @@ import {
   JoinColumn,
   OneToMany,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { AssignacioDocent } from './assignacio-docent.entity';
 import { Assistencia } from './assistencia.entity';
@@ -17,6 +18,7 @@ export enum SessioEstat {
 }
 
 @Entity('sessions')
+@Index('idx_sessio_estat_assignacio', ['estat', 'assignacioDocentId'])
 export class Sessio {
   @PrimaryGeneratedColumn()
   id: number;

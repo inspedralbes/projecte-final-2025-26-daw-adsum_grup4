@@ -3,9 +3,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('attendance_tokens')
+@Index('idx_attendance_token_modul', ['modulId'])
+@Index('idx_attendance_token_expires', ['expiresAt'])
 export class AttendanceToken {
   @PrimaryGeneratedColumn()
   id: number;
