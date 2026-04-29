@@ -266,15 +266,15 @@ export class AttendanceService {
     }
 
     // Determinar l'estat a partir de la validació del token
-    const estatValidat: AssistenciaEstat =
-      (validator.estat as AssistenciaEstat) ?? AssistenciaEstat.PRESENT;
+     const estatValidat: AssistenciaEstat =
+       (validation.estat as AssistenciaEstat) ?? AssistenciaEstat.PRESENT;
 
-    const assistencia = this.assistenciaRepo.create({
-      sessio: Sessio,
-      alumne: alumneQuery,
-      estat: estatValidat,
-      metodeValidacio: MetodeValidacio.QR_MOBIL,
-    });
+     const assistencia = this.assistenciaRepo.create({
+       sessio: sessio,
+       alumne: alumneQuery,
+       estat: estatValidat,
+       metodeValidacio: MetodeValidacio.QR_MOBIL,
+     });
 
     await this.assistenciaRepo.save(Assistencia);
 
