@@ -1,3 +1,0 @@
-name: Production
-deployment_approvals: required
-wait_timer: 0
