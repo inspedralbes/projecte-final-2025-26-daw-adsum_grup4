@@ -43,7 +43,6 @@ export class Matricula {
   anyAcademic: string;
 
   @Column({
-    type: 'enum',
     enum: MatriculaEstat,
     default: MatriculaEstat.MATRICULAT,
   })

@@ -6,33 +6,23 @@ services:
     container_name: adsum_db_prod
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    # Solo está accesible en la red interna, no mapeamos puertos al host
-    # ports:
-    #   - "3306:3306"
     volumes:
       - db_data_prod:/var/lib/mysql
+      - mysql_init:/docker-entrypoint-initdb.d
     networks:
       - adsum_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: adsum_pma_prod
-    restart: always
-    depends_on:
-      - db
-    ports:
-      # Puerto externo configurable, interno 80
-      - "${PMA_PORT_EXTERNAL:-8080}:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    networks:
-      - adsum_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - db_root_password
+      - db_password
 
   backend:
     build:
@@ -41,22 +31,23 @@ services:
     image: adsum-backend-prod
     container_name: adsum_backend_prod
     restart: always
-    # Puertos ocultos tras el proxy de Nginx
-    # ports:
-    #   - "${BACKEND_PORT:-3000}:3000"
     environment:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PASSWORD=/run/secrets/db_password
       - DB_NAME=${DB_NAME}
       - JWT_SECRET=${JWT_SECRET}
       - NODE_ENV=production
-      - FRONTEND_URL=http://adsum.daw.inspedralbes.cat
+      - FRONTEND_URL=${FRONTEND_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - adsum_network
+    secrets:
+      - db_password
 
   frontend:
     build:
@@ -78,3 +69,10 @@ networks:
 
 volumes:
   db_data_prod:
+  mysql_init:
+
+secrets:
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  db_password:
+    file: ./secrets/db_password.txt

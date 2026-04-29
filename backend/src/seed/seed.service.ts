@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,10 +11,7 @@ import { Assignatura } from '../entities/assignatura.entity';
 import { AssignacioDocent } from '../entities/assignacio-docent.entity';
 import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { ConfiguracioCentre } from '../entities/configuracio-centre.entity';
-import {
-  DadesFamiliars,
-  Familiar,
-} from '../users/interfaces/dades-usuari.interface'; // Ensure interface is imported
+import { Familiar } from '../users/interfaces/dades-usuari.interface'; // Ensure interface is imported
 
 import * as bcrypt from 'bcryptjs';
 import * as fs from 'fs';
@@ -31,7 +32,7 @@ export class SeedService implements OnApplicationBootstrap {
     private readonly sessioRepo: Repository<Sessio>,
     @InjectRepository(ConfiguracioCentre)
     private readonly configuracioCentreRepo: Repository<ConfiguracioCentre>,
-  ) { }
+  ) {}
 
   async onApplicationBootstrap() {
     const defaultUsers = [
@@ -58,7 +59,7 @@ export class SeedService implements OnApplicationBootstrap {
       },
     ];
 
-    console.log('[DEBUG SEED] Iniciant verificació d\'usuaris per defecte...');
+    console.log("[DEBUG SEED] Iniciant verificació d'usuaris per defecte...");
     for (const u of defaultUsers) {
       const exists = await this.usuariRepo.findOne({
         where: { email: u.email },
@@ -80,7 +81,7 @@ export class SeedService implements OnApplicationBootstrap {
         console.log(`[DEBUG SEED] L'usuari ja existeix: ${u.email}`);
       }
     }
-    console.log('[DEBUG SEED] Verificació d\'usuaris finalitzada.');
+    console.log("[DEBUG SEED] Verificació d'usuaris finalitzada.");
   }
 
   async executarSeed() {

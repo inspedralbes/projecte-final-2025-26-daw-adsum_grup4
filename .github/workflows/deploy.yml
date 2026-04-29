@@ -1,0 +1,33 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Hetzner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Execute remote ssh commands to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }} # Optional, if your key has a passphrase
+          script: |
+            # Navegar al directorio del proyecto (Ajusta esta ruta si es diferente en tu servidor)
+            cd ~/projecte-final-2025-26-daw-adsum_grup4 || cd /var/www/projecte-final-2025-26-daw-adsum_grup4
+            
+            # Actualizar el código
+            git pull origin main
+            
+            # Reconstruir y reiniciar los contenedores con la configuración de producción
+            docker compose -f docker-compose.prod.yml up -d --build
+            
+            # Limpiar imágenes antiguas para no llenar el disco
+            docker system prune -f

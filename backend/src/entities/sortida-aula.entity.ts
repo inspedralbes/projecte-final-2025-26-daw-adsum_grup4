@@ -38,17 +38,12 @@ export class SortidaAula {
   @CreateDateColumn({ name: 'hora_sortida' })
   horaSortida: Date;
 
-  @Column({ name: 'hora_tornada', type: 'datetime', nullable: true })
+  @Column({ name: 'hora_tornada', nullable: true })
   horaTornada: Date;
 
   @Column({
     name: 'durada_minuts',
-    type: 'int',
-    generatedType: 'VIRTUAL',
-    asExpression: 'TIMESTAMPDIFF(MINUTE, hora_sortida, hora_tornada)',
     nullable: true,
-    insert: false,
-    update: false,
   })
   duradaMinuts: number;
 }

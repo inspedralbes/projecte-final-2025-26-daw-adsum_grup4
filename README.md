@@ -1,65 +1,72 @@
-# ADSUM
-> **"L’assistència, simplificada. El compromís, potenciat."**
+# ADSUM - Sistema de Gestió d'Assistència
+ADSUM és una aplicació per a la gestió d'assistència en temps real mitjançant codis QR i geolocalització.
 
-Projecte Final de Grau Superior (DAW). Aplicació Web Progressiva (PWA) per a la gestió d'assistència escolar mitjançant codis QR dinàmics, geolocalització i intel·ligència artificial.
+## 🚀 Guia d'Inici Ràpid
 
----
+### Requisits Previs
+- **Node.js** (v18 o superior)
+- **Docker** (per a la base de dades MySQL)
 
-## Stack Tecnològic
-Aquest projecte utilitza una arquitectura moderna basada en microserveis i components:
+### Instal·lació
 
-* **Frontend:** Vue.js 3 (Vite) + TailwindCSS
-* **Backend:** NestJS + TypeORM
-* **Base de Dades:** MySQL
-* **Temps Real:** Socket.io
-* **Integracions:** Google Sheets API, Gemini AI
+1. **Base de Dades**:
+    ```bash
+    docker-compose up -d
+    ```
 
----
+2. **Backend (NestJS)**:
+    ```bash
+    cd backend
+    npm install
+    npm run start:dev
+    ```
 
-## Esquema de Base de Dades
-L'arquitectura de dades està dissenyada per garantir la integritat de l'assistència i evitar la suplantació d'identitat (Anti-Frau).
+3. **Frontend (Vue/Vite)**:
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
+    ```
 
-```mermaid
-classDiagram
-    direction LR
-    
-    class GRUPS {
-        PK id_grup
-        string nom
-        string curs
-    }
+### Usuaris de Prova
+Pots utilitzar el sistema de *seeding* per generar usuaris de prova:
+`POST http://localhost:3000/api/seed`
 
-    class MODULS {
-        PK id_modul
-        string nom
-        FK professor_id
-    }
+## 🐳 Despliegue en Producción
 
-    class USUARIS {
-        PK id_usuari
-        string nom
-        string email
-        enum rol
-        FK grup_id
-    }
+Para desplegar en entorno de producción, utiliza el archivo `docker-compose.prod.yml`:
 
-    class ASSISTENCIES {
-        PK id_assistencia
-        FK alumne_id
-        FK modul_id
-        date data
-        enum estat
-    }
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
 
-    class DISPOSITIUS {
-        PK id_dispositiu
-        FK usuari_id
-        string fingerprint
-    }
+### Configuración de Secrets
+El sistema de producción utiliza Docker secrets para manejar credenciales sensibles:
 
-    GRUPS "1" --> "*" USUARIS : Agrupa
-    GRUPS "1" --> "*" MODULS : Té
-    USUARIS "1" --> "*" MODULS : Imparteix
-    USUARIS "1" --> "*" ASSISTENCIES : Genera
-    MODULS "1" --> "*" ASSISTENCIES : Registra
-    USUARIS "1" --> "*" DISPOSITIUS : Té
+1. Crea el directorio `secrets` si no existe
+2. Coloca los archivos:
+   - `secrets/db_root_password.txt` - Contraseña root de MySQL
+   - `secrets/db_password.txt` - Contraseña del usuario de base de datos
+
+**IMPORTANTE**: Nunca confirmes estos archivos en el repositorio. El `.gitignore` ya los excluye.
+
+## 🔐 Seguridad
+
+- Los servicios innecesarios (como phpMyAdmin) están comentados en `docker-compose.yml` para desarrollo
+- En producción, la base de datos no expone puertos directamente al host
+- Las credenciales se manejan mediante variables de entorno y Docker secrets
+- Se han implementado roles básicos: admin, profesor, alumno y familia
+
+## 📝 Logging Estructurado
+
+El backend incluye logging estructurado mediante Winston que registra:
+- Eventos de login (éxitos y fallos)
+- Registro de asistencias
+- Errores críticos
+
+Los logs se almacenan en archivos (`logs/error.log` y `logs/combined.log`) y en consola en desarrollo.
+
+## 🛠️ Tecnologies
+- **Backend**: NestJS, TypeORM, Socket.io
+- **Frontend**: Vue 3, Vite, Tailwind CSS
+- **DB**: MySQL

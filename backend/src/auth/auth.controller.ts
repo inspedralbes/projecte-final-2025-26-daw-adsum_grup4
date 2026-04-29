@@ -1,18 +1,28 @@
-import { Controller, Post, Body, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  HttpCode,
+  HttpStatus,
+  Req,
+} from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: any) {
+  async login(@Body() loginDto: any, @Req() req: Request) {
     const password = loginDto.contrasenya || loginDto.password;
-    const user = await this.authService.validateUser(
-      loginDto.email,
-      password,
-    );
+    const ip = req.ip || req.socket.remoteAddress;
+    const user = await this.authService.validateUser(loginDto.email, password, ip);
 
     if (!user) {
       throw new UnauthorizedException('Credencials invàlides');

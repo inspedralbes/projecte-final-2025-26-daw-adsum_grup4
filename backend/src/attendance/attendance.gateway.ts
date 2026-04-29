@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -16,12 +17,13 @@ import { Inject, forwardRef } from '@nestjs/common';
   },
 })
 export class AttendanceGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server: Server;
   constructor(
     @Inject(forwardRef(() => AttendanceService))
     private readonly attendanceService: AttendanceService,
-  ) { }
+  ) {}
 
   afterInit() {
     console.log('Socket.io Initialized');
@@ -36,9 +38,9 @@ export class AttendanceGateway
   }
 
   @SubscribeMessage('join_module')
-  handleJoinModule(client: Socket, modulId: number) {
+  async handleJoinModule(client: Socket, modulId: number) {
     const room = `module_${modulId}`;
-    client.join(room);
+    await client.join(room);
     console.log(`Cliente ${client.id} unido a sala ${room}`);
     return { event: 'joined', room };
   }
@@ -53,9 +55,7 @@ export class AttendanceGateway
   }
 
   startQrLoop() {
-    // Generamos un nuevo QR cada 5 segundos (per als antics tests de QR)
     setInterval(async () => {
-      // Passem IDs per defecte per evitar errors si el loop segueix actiu
       const tokenData = await this.attendanceService.generateToken(0, 0);
       this.server.emit('new_qr', {
         token: tokenData.token,

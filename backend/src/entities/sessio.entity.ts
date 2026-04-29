@@ -6,6 +6,7 @@ import {
   JoinColumn,
   OneToMany,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { AssignacioDocent } from './assignacio-docent.entity';
 import { Assistencia } from './assistencia.entity';
@@ -17,6 +18,7 @@ export enum SessioEstat {
 }
 
 @Entity('sessions')
+@Index('idx_sessio_estat_assignacio', ['estat', 'assignacioDocentId'])
 export class Sessio {
   @PrimaryGeneratedColumn()
   id: number;
@@ -31,7 +33,7 @@ export class Sessio {
   @CreateDateColumn({ name: 'data_inici' })
   dataInici: Date;
 
-  @Column({ name: 'data_fi', type: 'datetime', nullable: true })
+  @Column({ name: 'data_fi', nullable: true })
   dataFi: Date;
 
   @Column({ name: 'pin_acces', length: 6, nullable: true })
@@ -40,7 +42,7 @@ export class Sessio {
   @Column({ name: 'bitacola_docent', type: 'text', nullable: true })
   bitacolaDocent: string;
 
-  @Column({ type: 'enum', enum: SessioEstat, default: SessioEstat.ACTIVA })
+  @Column({ enum: SessioEstat, default: SessioEstat.ACTIVA })
   estat: SessioEstat;
 
   @Column({

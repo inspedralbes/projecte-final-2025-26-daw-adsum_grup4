@@ -6,10 +6,10 @@ import {
   JoinColumn,
   CreateDateColumn,
   Unique,
+  Index,
 } from 'typeorm';
 import { Sessio } from './sessio.entity';
 import { Usuari } from './usuari.entity';
-import { Assignatura } from './assignatura.entity';
 import { Modul } from './modul.entity';
 
 export enum AssistenciaEstat {
@@ -28,6 +28,8 @@ export enum MetodeValidacio {
 
 @Entity('assistencies')
 @Unique(['sessio', 'alumne'])
+@Index('idx_assistencia_data', ['dataRegistre'])
+@Index('idx_assistencia_modul_data', ['modulId', 'dataRegistre'])
 export class Assistencia {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
@@ -65,7 +67,6 @@ export class Assistencia {
   dataRegistre: Date;
 
   @Column({
-    type: 'enum',
     enum: AssistenciaEstat,
     default: AssistenciaEstat.PRESENT,
   })
@@ -73,7 +74,6 @@ export class Assistencia {
 
   @Column({
     name: 'metode_validacio',
-    type: 'enum',
     enum: MetodeValidacio,
   })
   metodeValidacio: MetodeValidacio;

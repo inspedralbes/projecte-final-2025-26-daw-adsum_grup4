@@ -69,7 +69,7 @@ export class Usuari {
   @OneToMany(() => Dispositiu, (dispositiu) => dispositiu.usuari)
   dispositius: Dispositiu[];
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.ALUMNE })
+  @Column({ enum: UserRole, default: UserRole.ALUMNE })
   rol: UserRole;
 
   @Column({ name: 'es_actiu', default: true })
@@ -87,7 +87,6 @@ export class Usuari {
 
   @Column({
     name: 'nivell_educatiu',
-    type: 'enum',
     enum: NivellEducatiu,
     nullable: true,
   })
@@ -112,15 +111,13 @@ export class Usuari {
     name: 'gamificacio_data',
     type: 'json',
     nullable: true,
-    default: () =>
-      "(JSON_OBJECT('ratxa_actual', 0, 'punts', 0, 'insignies', JSON_ARRAY()))",
   })
   gamificacioData: GamificacioData;
 
   @CreateDateColumn({ name: 'data_creacio' })
   dataCreacio: Date;
 
-  @Column({ name: 'ultim_acces', type: 'timestamp', nullable: true })
+  @Column({ name: 'ultim_acces', nullable: true })
   ultimAcces: Date;
 
   @OneToMany(() => Matricula, (matricula) => matricula.alumne)
@@ -146,7 +143,6 @@ export class Usuari {
 
   @Column({
     name: 'caducitat_token_recuperacio',
-    type: 'datetime',
     nullable: true,
   })
   caducitatTokenRecuperacio: Date;
