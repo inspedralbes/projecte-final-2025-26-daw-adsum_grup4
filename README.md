@@ -1,6 +1,6 @@
 # ADSUM - Sistema de Gestió d'Assistència
 ADSUM és una aplicació per a la gestió d'assistència en temps real mitjançant codis QR i geolocalització.
- 
+
 ## 🚀 Guia d'Inici Ràpid
 
 ### Requisits Previs
