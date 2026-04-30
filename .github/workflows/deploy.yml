@@ -18,7 +18,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }} # Optional, if your key has a passphrase
+          debug: true
           script: |
             # Navegar al directorio del proyecto (Ajusta esta ruta si es diferente en tu servidor)
             cd ~/projecte-final-2025-26-daw-adsum_grup4 || cd /var/www/projecte-final-2025-26-daw-adsum_grup4
