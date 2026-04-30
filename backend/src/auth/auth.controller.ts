@@ -10,7 +10,7 @@ import {
   HttpStatus,
   Req,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -22,7 +22,11 @@ export class AuthController {
   async login(@Body() loginDto: any, @Req() req: Request) {
     const password = loginDto.contrasenya || loginDto.password;
     const ip = req.ip || req.socket.remoteAddress;
-    const user = await this.authService.validateUser(loginDto.email, password, ip);
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      password,
+      ip,
+    );
 
     if (!user) {
       throw new UnauthorizedException('Credencials invàlides');

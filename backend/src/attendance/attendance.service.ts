@@ -217,11 +217,15 @@ export class AttendanceService {
     });
 
     if (!sessio) {
-      this.logger.warn('No hi ha sessió activa per al grup', 'AttendanceService', {
-        event: 'NO_ACTIVE_SESSION',
-        alumneId,
-        grupId: alumneQuery.grup.id,
-      });
+      this.logger.warn(
+        'No hi ha sessió activa per al grup',
+        'AttendanceService',
+        {
+          event: 'NO_ACTIVE_SESSION',
+          alumneId,
+          grupId: alumneQuery.grup.id,
+        },
+      );
       throw new BadRequestException({
         code: this.NO_ACTIVE_SESSION_ERROR,
         message: 'No hi ha cap sessió activa per al teu grup ara mateix',
@@ -232,13 +236,17 @@ export class AttendanceService {
       validation.modulId &&
       sessio.assignacioDocent.assignaturaId !== validation.modulId
     ) {
-      this.logger.warn('Token no pertany a la sessió activa', 'AttendanceService', {
-        event: 'INVALID_SESSION_FOR_TOKEN',
-        alumneId,
-        sessioId: sessio.id,
-        tokenModulId: validation.modulId,
-        sessioModulId: sessio.assignacioDocent.assignaturaId,
-      });
+      this.logger.warn(
+        'Token no pertany a la sessió activa',
+        'AttendanceService',
+        {
+          event: 'INVALID_SESSION_FOR_TOKEN',
+          alumneId,
+          sessioId: sessio.id,
+          tokenModulId: validation.modulId,
+          sessioModulId: sessio.assignacioDocent.assignaturaId,
+        },
+      );
       throw new BadRequestException({
         code: this.INVALID_SESSION_FOR_TOKEN_ERROR,
         message: 'El token no pertany a aquesta sessió',
@@ -253,11 +261,15 @@ export class AttendanceService {
     });
 
     if (assistenciaExistent) {
-      this.logger.warn('Intent de doble registre d'Assistencia', 'AttendanceService', {
-        event: 'DUPLICATE_ATTENDANCE',
-        alumneId,
-        sessioId: sessio.id,
-      });
+      this.logger.warn(
+        "Intent de doble registre d'Assistencia",
+        'AttendanceService',
+        {
+          event: 'DUPLICATE_ATTENDANCE',
+          alumneId,
+          sessioId: sessio.id,
+        },
+      );
       throw new ConflictException({
         code: this.DUPLICATE_ATTENDANCE_ERROR,
         message: "Ja has registrat l'assistència prèviament",
@@ -266,17 +278,17 @@ export class AttendanceService {
     }
 
     // Determinar l'estat a partir de la validació del token
-     const estatValidat: AssistenciaEstat =
-       (validation.estat as AssistenciaEstat) ?? AssistenciaEstat.PRESENT;
+    const estatValidat: AssistenciaEstat =
+      (validation.estat as AssistenciaEstat) ?? AssistenciaEstat.PRESENT;
 
-     const assistencia = this.assistenciaRepo.create({
-       sessio: sessio,
-       alumne: alumneQuery,
-       estat: estatValidat,
-       metodeValidacio: MetodeValidacio.QR_MOBIL,
-     });
+    const assistencia = this.assistenciaRepo.create({
+      sessio: sessio,
+      alumne: alumneQuery,
+      estat: estatValidat,
+      metodeValidacio: MetodeValidacio.QR_MOBIL,
+    });
 
-    await this.assistenciaRepo.save(Assistencia);
+    await this.assistenciaRepo.save(assistencia);
 
     // Marcar el token de BD com a usat per evitar reutilitzacions
     const dbToken = await this.tokenRepository.findOne({
@@ -287,10 +299,10 @@ export class AttendanceService {
       await this.tokenRepository.save(dbToken);
     }
 
-    this.logger.attendanceRegistered(alumneId, Sessio.id, Assistencia.estat);
+    this.logger.attendanceRegistered(alumneId, sessio.id, assistencia.estat);
 
     this.attendanceGateway.notifyAttendance(
-      Sessio.assignacioDocent.assignaturaId || 0,
+      sessio.assignacioDocent.assignaturaId || 0,
       {
         alumneId: alumneQuery.id,
         nom: alumneQuery.nom,
@@ -315,18 +327,21 @@ export class AttendanceService {
 
     let assistencia = await this.assistenciaRepo.findOne({
       where: {
-        alumneId: alumneId,
-        modulId: modulId,
+        alumne: { id: alumneId },
         dataRegistre: Raw((alias) => `DATE(${alias}) = :avui`, { avui }),
       },
+      relations: ['alumne'],
     });
 
     if (assistencia) {
       assistencia.estat = estat as any;
     } else {
+      const alumne = await this.usuariRepo.findOne({ where: { id: alumneId } });
+      if (!alumne) {
+        throw new NotFoundException('Alumne no trobat');
+      }
       assistencia = this.assistenciaRepo.create({
-        alumneId,
-        modulId,
+        alumne: alumne,
         estat: estat as any,
         metodeValidacio: MetodeValidacio.PROFESSOR_MANUAL,
       });
