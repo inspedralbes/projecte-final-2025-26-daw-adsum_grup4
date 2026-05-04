@@ -73,10 +73,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import MissatgeriaService from '../services/MissatgeriaService';
-import { useAuthStore } from '../stores/auth'; // Simulat
 
-const authStore = useAuthStore();
-const familiar = ref(authStore.usuari || { id: 1, nom: 'Pare/Mare', cognoms: 'Proves' });
+const currentUser = JSON.parse(localStorage.getItem('user') || '{"id": 1, "nom": "Pare/Mare", "cognoms": "Proves"}');
+const familiar = ref(currentUser);
 
 const activeTab = ref('resum');
 const tabs = [

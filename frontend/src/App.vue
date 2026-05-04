@@ -37,6 +37,10 @@
           <p class="font-bold uppercase tracking-widest text-xs">Secció d'Admin en construcció</p>
         </div>
       </div>
+
+      <div v-else-if="currentUser?.rol === 'familia'">
+        <DashboardFamiliar v-if="activeView === 'home'" />
+      </div>
     </Transition>
   </AppShell>
 </template>
@@ -49,6 +53,7 @@ import DashboardBento from './views/DashboardBento.vue';
 import PerformanceView from './views/PerformanceView.vue';
 import DashboardProfessor from './views/DashboardProfessor.vue';
 import ClasseDetall from './views/ClasseDetall.vue';
+import DashboardFamiliar from './views/DashboardFamiliar.vue';
 
 const isLoggedIn = ref(!!localStorage.getItem('access_token'));
 const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));

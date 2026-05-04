@@ -51,7 +51,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 import MissatgeriaService from '../services/MissatgeriaService';
-import { useAuthStore } from '../stores/auth'; // Assumeix un store per agafar l'id del profe
+
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 const props = defineProps({
   isOpen: Boolean,
@@ -101,7 +102,7 @@ const enviar = async () => {
   
   enviant.value = true;
   try {
-    const emissorId = authStore.usuari.id; // L'ID del professor actiu
+    const emissorId = currentUser.id || 1; // L'ID del professor actiu (fallback a 1 per demos)
     await MissatgeriaService.enviarMissatge(emissorId, familiarSeleccionat.value, missatgeText.value);
     enviatAmbExit.value = true;
     setTimeout(() => {
