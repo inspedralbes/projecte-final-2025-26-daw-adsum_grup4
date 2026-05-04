@@ -280,6 +280,15 @@
                 <p class="text-xs font-bold text-slate-700">Dades completes de l'alumne del grup {{ modul.grup?.nom }}</p>
               </div>
             </div>
+            <div class="flex items-center gap-4 group cursor-pointer" @click="obrirModalMissatge(selectedStudent)">
+              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-colors border border-indigo-100 shadow-sm">
+                <AppIcon name="message-circle" class="w-5 h-5" />
+              </div>
+              <div class="flex-1 overflow-hidden">
+                <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Contacte directe</p>
+                <p class="text-xs font-bold text-slate-700">Enviar missatge a la família</p>
+              </div>
+            </div>
           </div>
           
           <button @click="showStudentModal = false" class="w-full mt-10 py-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-slate-200 active:scale-95">
@@ -337,6 +346,12 @@
         </div>
       </div>
     </div>
+    
+    <ModalMissatge
+      :isOpen="showMissatgeModal"
+      :alumne="alumneMissatge"
+      @close="showMissatgeModal = false"
+    />
   </div>
 </template>
 
@@ -344,6 +359,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { API_BASE_URL } from '@/config/api';
 import AppIcon from '../components/shared/AppIcon.vue';
+import ModalMissatge from '../components/ModalMissatge.vue';
 import { io } from 'socket.io-client';
 
 const props = defineProps({
@@ -396,6 +412,15 @@ const selectedStudent = ref(null);
 const openStudentDetail = (student) => {
   selectedStudent.value = student;
   showStudentModal.value = true;
+};
+
+// MISSATGERIA
+const showMissatgeModal = ref(false);
+const alumneMissatge = ref(null);
+
+const obrirModalMissatge = (student) => {
+  alumneMissatge.value = student;
+  showMissatgeModal.value = true;
 };
 
 // COUNTDOWN

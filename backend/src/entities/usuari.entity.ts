@@ -15,6 +15,7 @@ import { AssignacioDocent } from './assignacio-docent.entity';
 import { Assistencia } from './assistencia.entity';
 import { SortidaAula } from './sortida-aula.entity';
 import { Justificacio } from './justificacio.entity';
+import { Missatge } from './missatge.entity';
 import { LogAuditoria } from './log-auditoria.entity';
 import { SubscripcioPush } from './subscripcio-push.entity';
 import { Dispositiu } from './dispositiu.entity';
@@ -170,4 +171,10 @@ export class Usuari {
 
   @OneToMany(() => Modul, (modul) => modul.professor)
   moduls_impartits: Modul[];
+
+  @OneToMany(() => Missatge, (missatge) => missatge.emissor)
+  missatgesEnviats: Missatge[];
+
+  @OneToMany(() => Missatge, (missatge) => missatge.receptor)
+  missatgesRebuts: Missatge[];
 }
