@@ -21,7 +21,6 @@ import { Usuari } from '../entities/usuari.entity';
 import { AttendanceToken } from '../entities/attendance-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AttendanceGateway } from './attendance.gateway';
-import { LogsService } from '../logs/logs.service';
 
 @Injectable()
 export class AttendanceService {
@@ -38,8 +37,6 @@ export class AttendanceService {
     private readonly tokenRepository: Repository<AttendanceToken>,
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
-    @Inject(LogsService)
-    private readonly logger: LogsService,
   ) {}
 
   async generateToken(

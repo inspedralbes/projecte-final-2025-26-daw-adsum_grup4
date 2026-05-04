@@ -6,7 +6,6 @@ import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { LogsService } from '../logs/logs.service';
 import { Request } from 'express';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    @Inject(LogsService) private logger: LogsService,
   ) {}
 
   async validateUser(email: string, pass: string, ip?: string): Promise<any> {
