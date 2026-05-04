@@ -1,30 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class LogsService {
-  loginSuccess(userId: number, email: string, ip?: string) {
-    console.log(`[LOGIN SUCCESS] user=${userId} email=${email} ip=${ip}`);
+  private logger = new Logger('App');
+
+  warn(message: string, context?: string) {
+    this.logger.warn(message, context);
   }
 
-  loginFailed(email: string, reason: string, ip?: string) {
-    console.log(`[LOGIN FAILED] email=${email} reason=${reason} ip=${ip}`);
+  loginSuccess(userId: number, email: string, ip: string) {
+    this.logger.log(`Login OK: ${email} (${userId}) from ${ip}`);
+  }
+
+  loginFailed(email: string, reason: string, ip: string) {
+    this.logger.warn(`Login FAIL: ${email} - ${reason} (${ip})`);
   }
 
   attendanceRegistered(alumneId: number, sessioId: number, estat: string) {
-    console.log(
-      `[ATTENDANCE] alumne=${alumneId} sessio=${sessioId} estat=${estat}`,
+    this.logger.log(
+      `Attendance: alumne=${alumneId} sessio=${sessioId} estat=${estat}`,
     );
-  }
-
-  warn(message: string, context?: string, meta?: any) {
-    console.warn(`[WARN] ${message}`, meta);
-  }
-
-  criticalError(exception: Error, context?: string, meta?: any) {
-    console.error(`[CRITICAL ERROR] ${exception.message}`, {
-      stack: exception.stack,
-      context,
-      ...meta,
-    });
   }
 }
