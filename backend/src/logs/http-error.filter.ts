@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
@@ -13,7 +12,7 @@ import { LogsService } from './logs.service';
 
 @Catch()
 export class HttpErrorFilter implements ExceptionFilter {
-  constructor(private readonly logger: LogsService) {}
+  constructor(private readonly logsService: LogsService) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -37,7 +36,7 @@ export class HttpErrorFilter implements ExceptionFilter {
       message = 'Error intern del servidor';
       error = 'InternalServerError';
 
-      this.logger.criticalError(
+      this.logsService.criticalError(
         exception instanceof Error ? exception : new Error(String(exception)),
         'HttpErrorFilter',
         {

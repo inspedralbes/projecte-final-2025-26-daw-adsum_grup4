@@ -14,26 +14,26 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private logger: LogsService,
+    private readonly logsService: LogsService,
   ) {}
 
   async validateUser(email: string, pass: string, ip?: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      this.logger.loginFailed(email, 'USER_NOT_FOUND', ip);
+      this.logsService.loginFailed(email, 'USER_NOT_FOUND', ip);
       return null;
     }
 
     const isMatch = await bcrypt.compare(pass, user.contrasenyaHash);
 
     if (isMatch) {
-      this.logger.loginSuccess(user.id, email, ip);
+      this.logsService.loginSuccess(user.id, email, ip);
       const { contrasenyaHash: _unused, ...result } = user;
       return result;
     }
 
-    this.logger.loginFailed(email, 'INVALID_PASSWORD', ip);
+    this.logsService.loginFailed(email, 'INVALID_PASSWORD', ip);
     return null;
   }
 

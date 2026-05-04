@@ -38,7 +38,7 @@ export class AttendanceService {
     private readonly tokenRepository: Repository<AttendanceToken>,
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
-    private readonly logger: LogsService,
+    private readonly logsService: LogsService,
   ) {}
 
   async generateToken(
@@ -168,7 +168,7 @@ export class AttendanceService {
     const validation = await this.validateToken(tokenValue);
     if (!validation.isValid) {
       if (validation.error === this.TOKEN_EXPIRED_ERROR) {
-        this.logger.warn('Token QR expirat', 'AttendanceService', {
+        this.logsService.warn('Token QR expirat', 'AttendanceService', {
           event: 'TOKEN_EXPIRED',
           alumneId,
           token: tokenValue.slice(0, 8) + '…',
@@ -179,11 +179,15 @@ export class AttendanceService {
           expiresAt: validation.expiresAt,
         });
       }
-      this.logger.warn('Token QR invàlid o ja utilitzat', 'AttendanceService', {
-        event: 'TOKEN_INVALID',
-        alumneId,
-        token: tokenValue.slice(0, 8) + '…',
-      });
+      this.logsService.warn(
+        'Token QR invàlid o ja utilitzat',
+        'AttendanceService',
+        {
+          event: 'TOKEN_INVALID',
+          alumneId,
+          token: tokenValue.slice(0, 8) + '…',
+        },
+      );
       throw new BadRequestException({
         code: 'TOKEN_INVALID',
         message: 'Token invàlid o ja ha estat usat',
@@ -216,7 +220,7 @@ export class AttendanceService {
     });
 
     if (!sessio) {
-      this.logger.warn(
+      this.logsService.warn(
         'No hi ha sessió activa per al grup',
         'AttendanceService',
         {
@@ -235,7 +239,7 @@ export class AttendanceService {
       validation.modulId &&
       sessio.assignacioDocent.assignaturaId !== validation.modulId
     ) {
-      this.logger.warn(
+      this.logsService.warn(
         'Token no pertany a la sessió activa',
         'AttendanceService',
         {
@@ -260,7 +264,7 @@ export class AttendanceService {
     });
 
     if (assistenciaExistent) {
-      this.logger.warn(
+      this.logsService.warn(
         "Intent de doble registre d'Assistencia",
         'AttendanceService',
         {
@@ -298,7 +302,11 @@ export class AttendanceService {
       await this.tokenRepository.save(dbToken);
     }
 
-    this.logger.attendanceRegistered(alumneId, sessio.id, assistencia.estat);
+    this.logsService.attendanceRegistered(
+      alumneId,
+      sessio.id,
+      assistencia.estat,
+    );
 
     this.attendanceGateway.notifyAttendance(
       sessio.assignacioDocent.assignaturaId || 0,
