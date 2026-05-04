@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { LogsService } from '../logs/logs.service';
 import * as bcrypt from 'bcryptjs';
 import { Request } from 'express';
 
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private logger: LogsService,
   ) {}
 
   async validateUser(email: string, pass: string, ip?: string): Promise<any> {
@@ -30,7 +32,7 @@ export class AuthService {
       const { contrasenyaHash: _unused, ...result } = user;
       return result;
     }
-    
+
     this.logger.loginFailed(email, 'INVALID_PASSWORD', ip);
     return null;
   }
