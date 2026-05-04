@@ -12,7 +12,6 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data_prod:/var/lib/mysql
-      - mysql_init:/docker-entrypoint-initdb.d
     networks:
       - adsum_network
     healthcheck:
@@ -20,46 +19,41 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    secrets:
-      - db_root_password
-      - db_password
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    image: adsum-backend-prod
     container_name: adsum_backend_prod
     restart: always
     environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=/run/secrets/db_password
-      - DB_NAME=${DB_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-      - NODE_ENV=production
-      - FRONTEND_URL=${FRONTEND_URL}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
+      FRONTEND_URL: ${FRONTEND_URL}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "3000:3000"
     networks:
       - adsum_network
-    secrets:
-      - db_password
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
-    image: adsum-frontend-prod
     container_name: adsum_frontend_prod
     restart: always
-    ports:
-      - "${FRONTEND_PORT:-80}:80"
     depends_on:
       - backend
+    ports:
+      - "3001:80"
     networks:
       - adsum_network
 
@@ -69,10 +63,3 @@ networks:
 
 volumes:
   db_data_prod:
-  mysql_init:
-
-secrets:
-  db_root_password:
-    file: ./secrets/db_root_password.txt
-  db_password:
-    file: ./secrets/db_password.txt
