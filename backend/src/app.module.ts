@@ -10,6 +10,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
+import { LogsModule } from './logs/logs.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -63,7 +64,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
           Dispositiu,
           AttendanceToken,
         ],
-        synchronize: true,
+        synchronize: false,
         retryAttempts: 10,
         retryDelay: 3000,
         autoLoadEntities: true,
@@ -76,6 +77,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
     SeedModule,
     NotificacionsModule,
     AuthModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
