@@ -21,19 +21,19 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      this.logsService.loginFailed(email, 'USER_NOT_FOUND', ip);
+      this.logsService.loginFailed(email, 'USER_NOT_FOUND', ip ?? 'unknown');
       return null;
     }
 
     const isMatch = await bcrypt.compare(pass, user.contrasenyaHash);
 
     if (isMatch) {
-      this.logsService.loginSuccess(user.id, email, ip);
+      this.logsService.loginSuccess(user.id, email, ip ?? 'unknown');
       const { contrasenyaHash: _unused, ...result } = user;
       return result;
     }
 
-    this.logsService.loginFailed(email, 'INVALID_PASSWORD', ip);
+    this.logsService.loginFailed(email, 'INVALID_PASSWORD', ip ?? 'unknown');
     return null;
   }
 

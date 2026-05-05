@@ -4,8 +4,9 @@ import { Injectable, Logger } from '@nestjs/common';
 export class LogsService {
   private logger = new Logger('App');
 
-  warn(message: string, context?: string) {
-    this.logger.warn(message, context);
+  warn(message: string, context?: string, metadata?: Record<string, unknown>) {
+    const meta = metadata ? ` ${JSON.stringify(metadata)}` : '';
+    this.logger.warn(`${message}${meta}`, context);
   }
 
   loginSuccess(userId: number, email: string, ip: string) {
@@ -20,5 +21,9 @@ export class LogsService {
     this.logger.log(
       `Attendance: alumne=${alumneId} sessio=${sessioId} estat=${estat}`,
     );
+  }
+
+  criticalError(message: string, stack?: string, context?: string) {
+    this.logger.error(message, stack, context);
   }
 }

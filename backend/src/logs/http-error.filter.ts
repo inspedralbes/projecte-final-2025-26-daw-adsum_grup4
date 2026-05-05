@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
   ExceptionFilter,
   Catch,
@@ -25,32 +27,33 @@ export class HttpErrorFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
+
       const exceptionResponse = exception.getResponse();
+
       message =
         typeof exceptionResponse === 'string'
           ? exceptionResponse
-          : (exceptionResponse as any).message || exception.message;
+          : (exceptionResponse as any)?.message || exception.message;
+
       error = exception.name;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Error intern del servidor';
       error = 'InternalServerError';
 
-      this.logsService.criticalError(
-        exception instanceof Error ? exception : new Error(String(exception)),
-        'HttpErrorFilter',
-        {
-          path: request.url,
-          method: request.method,
-          ip: request.ip,
-        },
-      );
+      const errMessage =
+        exception instanceof Error ? exception.message : String(exception);
+
+      const stack = exception instanceof Error ? exception.stack : undefined;
+
+      this.logsService.criticalError(errMessage, stack, 'HttpErrorFilter');
     }
 
     const responseBody = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
+      method: request.method,
       message,
       error,
     };

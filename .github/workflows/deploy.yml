@@ -19,21 +19,20 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          debug: true
           script: |
             set -e
             echo "Conectado correctamente. Iniciando despliegue..."
-            
+
             # Entrar en la carpeta del proyecto
             cd ~/projecte-final-2025-26-daw-adsum_grup4
-            
+
             # Resetear cualquier cambio local y traer lo nuevo
             git fetch origin main
             git reset --hard origin/main
-            
-            # Reconstruir contenedores
-            docker compose -f docker-compose.prod.yml up -d --build
-            
+
+            # Reconstruir contenedores usando el archivo .env.production
+            docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+
             # Limpiar
             docker system prune -f
             echo "Despliegue finalizado con éxito."
