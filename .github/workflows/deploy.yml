@@ -30,8 +30,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Reconstruir contenedores usando el archivo .env.production
-            docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+            # Reconstruir contenedores usando el archivo .env del servidor
+            docker compose -f docker-compose.prod.yml up -d --build
 
             # Limpiar
             docker system prune -f
