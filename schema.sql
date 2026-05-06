@@ -70,6 +70,10 @@ CREATE TABLE usuaris (
     data_creacio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultim_acces TIMESTAMP NULL,
 
+    -- Recuperació de contrasenya
+    token_recuperacio VARCHAR(255) NULL,
+    caducitat_token_recuperacio DATETIME NULL,
+
     FOREIGN KEY (grup_id) REFERENCES grups(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
