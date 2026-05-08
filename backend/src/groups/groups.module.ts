@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Grup } from '../entities/grup.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Grup])],
-    controllers: [],
-    providers: [],
+  imports: [TypeOrmModule.forFeature([Grup])],
+  controllers: [],
+  providers: [],
 })
-export class GroupsModule { }
+export class GroupsModule {}

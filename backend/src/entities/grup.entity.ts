@@ -4,18 +4,18 @@ import { Modul } from './modul.entity';
 
 @Entity('grups')
 export class Grup {
-    @PrimaryGeneratedColumn()
-    id_grup: number;
+  @PrimaryGeneratedColumn()
+  id_grup: number;
 
-    @Column()
-    nom: string;
+  @Column()
+  nom: string;
 
-    @Column()
-    curs_academic: string;
+  @Column()
+  curs_academic: string;
 
-    @OneToMany(() => Usuari, (usuari) => usuari.grup)
-    usuaris: Usuari[];
+  @OneToMany(() => Usuari, (usuari) => usuari.grup)
+  usuaris: Usuari[];
 
-    @OneToMany(() => Modul, (modul) => modul.grup)
-    moduls: Modul[];
+  @OneToMany(() => Modul, (modul) => modul.grup)
+  moduls: Modul[];
 }

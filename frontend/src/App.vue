@@ -1,6 +1,23 @@
 <template>
   <div class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-    <div class="bg-white p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(30,41,59,0.05)] border border-slate-100 max-w-sm w-full text-center">
+    <div class="flex gap-2 mb-4">
+      <button 
+        @click="mode = 'display'"
+        :class="mode === 'display' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded-lg font-bold text-sm"
+      >
+        📺 Display (Alumne)
+      </button>
+      <button 
+        @click="mode = 'scanner'"
+        :class="mode === 'scanner' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'"
+        class="px-4 py-2 rounded-lg font-bold text-sm"
+      >
+        📷 Scanner (Porta)
+      </button>
+    </div>
+
+    <div v-if="mode === 'display'" class="bg-white p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(30,41,59,0.05)] border border-slate-100 max-w-sm w-full text-center">
       <h1 class="text-4xl font-extrabold text-gray-800 mb-4">ADSUM QR</h1>
       <p class="text-gray-500 text-sm mb-6">Escaneja per marcar assistència</p>
       
@@ -8,7 +25,6 @@
         <qrcode-vue :value="qrValue" :size="200" level="H" render-as="svg" />
         <div class="mt-4 w-full">
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Token de verificació</p>
-          <!-- Eliminamos espacios y saltos de línea dentro del code para que no se copien caracteres basura -->
           <code class="text-[10px] font-mono text-indigo-600 font-bold break-all bg-white py-2 px-3 rounded-xl border border-slate-100 block shadow-sm select-all">{{ qrValue }}</code>
           <p class="text-[9px] text-slate-300 mt-2">Fes doble clic per seleccionar-ho tot</p>
         </div>
@@ -32,6 +48,8 @@
       </div>
 
     </div>
+
+    <QrScanner v-else />
   </div>
 </template>
 
@@ -39,7 +57,9 @@
 import { onMounted, ref } from 'vue';
 import { io } from 'socket.io-client';
 import QrcodeVue from 'qrcode.vue';
+import QrScanner from './components/QrScanner.vue';
 
+const mode = ref('display');
 const qrValue = ref('esperant...');
 const timeLeft = ref(5);
 let timer = null;

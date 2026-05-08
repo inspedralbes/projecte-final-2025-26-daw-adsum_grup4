@@ -8,9 +8,9 @@ import { AttendanceGateway } from './attendance.gateway';
 import { AttendanceController } from './attendance.controller';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Modul, Assistencia, AttendanceToken])],
-    controllers: [AttendanceController],
-    providers: [AttendanceService, AttendanceGateway],
-    exports: [AttendanceService],
+  imports: [TypeOrmModule.forFeature([Modul, Assistencia, AttendanceToken])],
+  controllers: [AttendanceController],
+  providers: [AttendanceService, AttendanceGateway],
+  exports: [AttendanceService],
 })
-export class AttendanceModule { }
+export class AttendanceModule {}
