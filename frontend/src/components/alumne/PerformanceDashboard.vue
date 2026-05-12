@@ -17,60 +17,16 @@
 
     <!-- Calculadora de Notas -->
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Simulador de Notes</h2>
-        <span class="text-xs bg-slate-100 px-2 py-1 rounded-lg font-bold text-slate-500">MVP</span>
-      </div>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 ml-1">Nota actual (mitjana)</label>
-          <input 
-            v-model.number="currentGrade" 
-            type="number" 
-            max="10" 
-            min="0"
-            class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          >
-        </div>
-        
-        <div>
-          <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 ml-1">Nota desitjada (final)</label>
-          <input 
-            v-model.number="targetGrade" 
-            type="number" 
-            max="10" 
-            min="0"
-            class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          >
-        </div>
-
-        <div v-if="neededGrade !== null" class="mt-6 p-4 rounded-2xl text-center" :class="neededGrade > 10 ? 'bg-red-50' : 'bg-indigo-600'">
-          <p class="text-[10px] uppercase font-bold tracking-widest mb-1" :class="neededGrade > 10 ? 'text-red-400' : 'text-indigo-200'">
-            Necessites al següent examen:
-          </p>
-          <p class="text-3xl font-black" :class="neededGrade > 10 ? 'text-red-600' : 'text-white'">
-            {{ neededGrade > 10 ? 'Impossible!' : neededGrade.toFixed(2) }}
-          </p>
-          <p v-if="neededGrade > 10" class="text-[9px] text-red-400 mt-1 font-bold">La nota supera el 10</p>
-        </div>
-      </div>
+      <GradeCalculator />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import GradeCalculator from './GradeCalculator.vue';
 
-const currentGrade = ref(5);
-const targetGrade = ref(7);
-
-const neededGrade = computed(() => {
-  if (currentGrade.value === null || targetGrade.value === null) return null;
-  // Suposant que l'examen següent compta el 50% de la nota final
-  // (Target * 2) - Current = Needed
-  return (targetGrade.value * 2) - currentGrade.value;
-});
+// Mantingut per compatibilitat amb el Resum d'Assistència si calgués en el futur
 </script>
 
 <style scoped>
