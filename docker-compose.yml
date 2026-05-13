@@ -51,6 +51,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-root}
       - DB_NAME=${DB_NAME:-projecte_final}
       - JWT_SECRET=${JWT_SECRET:-secret}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-BAYpv9NMlZYady-ke2W-h4Zlcf0sn0hCVPWotImSKHnmo8BWPzCJJbI3ZUtV2-Sx3nInjqfzYAb-BzYw2gFuN7U}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-IkJ7-GJfmox9Lza5wZzbQx-8zxr7dVsFe6ewasS-be8}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@adsum.edu}
     depends_on:
       - db
     volumes:

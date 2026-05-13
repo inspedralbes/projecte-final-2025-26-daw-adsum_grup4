@@ -22,6 +22,7 @@ import { AttendanceToken } from '../entities/attendance-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AttendanceGateway } from './attendance.gateway';
 import { LogsService } from '../logs/logs.service';
+import { NotificacionsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AttendanceService {
@@ -39,6 +40,7 @@ export class AttendanceService {
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
     private readonly logsService: LogsService,
+    private readonly notificacionsService: NotificacionsService,
   ) {}
 
   async generateToken(
@@ -318,6 +320,28 @@ export class AttendanceService {
       },
     );
 
+    // Notificar als pares si l'alumne no ha arribat o ha sortit abans d'hora
+    if (assistencia.estat === AssistenciaEstat.ABSENT || assistencia.estat === AssistenciaEstat.JUSTIFICAT) {
+      const now = new Date();
+      const horaClasse = now.getHours();
+      
+      if (horaClasse < 10) {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumneQuery],
+          '📚 Adsum - Absència',
+          `El/La ${alumneQuery.nom} no ha arrivat a classe aquest matí.`,
+          { alumneId: alumneQuery.id, tipus: 'absencia', data: now }
+        );
+      } else {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumneQuery],
+          '📚 Adsum - Sortida anticipada',
+          `El/La ${alumneQuery.nom} ha sortit de classe abans d'hora.`,
+          { alumneId: alumneQuery.id, tipus: 'sortida_anticipada', data: now }
+        );
+      }
+    }
+
     return {
       success: true,
       message: 'Assistència registrada correctament',
@@ -362,6 +386,19 @@ export class AttendanceService {
       estat: estat,
       data: assistencia.dataRegistre,
     });
+
+    // Notificar als pares si el professor marca com absent
+    if (estat === 'ABSENT') {
+      const alumne = await this.usuariRepo.findOne({ where: { id: alumneId } });
+      if (alumne) {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumne],
+          '📚 Adsum - Absència registrada',
+          `El/La ${alumne.nom} ha estat marcat/da com absent pel professor.`,
+          { alumneId: alumneId, tipus: 'absencia_manual', data: new Date() }
+        );
+      }
+    }
 
     return result;
   }
