@@ -16,7 +16,7 @@ import { Usuari } from '../entities/usuari.entity';
 @Controller('api/usuaris')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   async crearUsuari(@Body() dadesUsuari: Partial<Usuari>): Promise<Usuari> {

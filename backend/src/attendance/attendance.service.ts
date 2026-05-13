@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as crypto from 'crypto';
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ConflictException,
+  UnauthorizedException,
   Inject,
   forwardRef,
 } from '@nestjs/common';
@@ -18,6 +21,8 @@ import { Usuari } from '../entities/usuari.entity';
 import { AttendanceToken } from '../entities/attendance-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AttendanceGateway } from './attendance.gateway';
+import { LogsService } from '../logs/logs.service';
+import { NotificacionsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AttendanceService {
@@ -34,7 +39,9 @@ export class AttendanceService {
     private readonly tokenRepository: Repository<AttendanceToken>,
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
-  ) { }
+    private readonly logsService: LogsService,
+    private readonly notificacionsService: NotificacionsService,
+  ) {}
 
   async generateToken(
     modulId?: number,
@@ -70,54 +77,142 @@ export class AttendanceService {
     }
   }
 
-  async validateToken(
-    tokenValue: string,
-  ): Promise<{ isValid: boolean; estat?: string }> {
-    // Check DB first
-    const token = await this.tokenRepository.findOne({
+  private readonly TOKEN_EXPIRED_ERROR = 'TOKEN_EXPIRED';
+  private readonly TOKEN_INVALID_ERROR = 'TOKEN_INVALID';
+  private readonly NO_ACTIVE_SESSION_ERROR = 'NO_ACTIVE_SESSION';
+  private readonly DUPLICATE_ATTENDANCE_ERROR = 'DUPLICATE_ATTENDANCE';
+  private readonly INVALID_SESSION_FOR_TOKEN_ERROR =
+    'INVALID_SESSION_FOR_TOKEN';
+
+  async validateToken(tokenValue: string): Promise<{
+    isValid: boolean;
+    estat?: string;
+    error?: string;
+    modulId?: number;
+    expiresAt?: Date;
+  }> {
+    const now = new Date();
+
+    let tokenData: {
+      expiresAt: Date;
+      modulId: number;
+      lateMinutes: number;
+      absentMinutes: number;
+      createdAt: Date;
+    } | null = null;
+
+    const dbToken = await this.tokenRepository.findOne({
       where: { token: tokenValue },
     });
 
-    if (token) {
-      const now = new Date();
-      if (token.expiresAt < now) return { isValid: false };
-
-      const elapsedMinutes =
-        (now.getTime() - token.createdAt.getTime()) / (1000 * 60);
-
-      let estat = 'present';
-      if (elapsedMinutes >= token.absentMinutes) {
-        estat = 'absent';
-      } else if (elapsedMinutes >= token.lateMinutes) {
-        estat = 'retard';
+    if (dbToken) {
+      if (dbToken.expiresAt < now) {
+        return {
+          isValid: false,
+          error: this.TOKEN_EXPIRED_ERROR,
+          expiresAt: dbToken.expiresAt,
+        };
       }
-
-      return { isValid: true, estat };
+      if (dbToken.isUsed) {
+        return { isValid: false, error: this.TOKEN_INVALID_ERROR };
+      }
+      tokenData = {
+        expiresAt: dbToken.expiresAt,
+        modulId: dbToken.modulId,
+        lateMinutes: dbToken.lateMinutes,
+        absentMinutes: dbToken.absentMinutes,
+        createdAt: dbToken.createdAt,
+      };
+    } else {
+      const expiry = this.activeTokens.get(tokenValue);
+      if (!expiry || expiry <= now) {
+        return { isValid: false, error: this.TOKEN_EXPIRED_ERROR };
+      }
+      tokenData = {
+        expiresAt: expiry,
+        modulId: 0,
+        lateMinutes: 15,
+        absentMinutes: 30,
+        createdAt: new Date(0),
+      };
     }
 
-    // Check memory
-    const expiry = this.activeTokens.get(tokenValue);
-    const isValid = !!expiry && expiry > new Date();
-    return { isValid, estat: isValid ? 'present' : undefined };
+    const elapsedMinutes =
+      (now.getTime() - tokenData.createdAt.getTime()) / (1000 * 60);
+
+    let estat = 'present';
+    if (elapsedMinutes >= tokenData.absentMinutes) {
+      estat = 'absent';
+    } else if (elapsedMinutes >= tokenData.lateMinutes) {
+      estat = 'retard';
+    }
+
+    return {
+      isValid: true,
+      estat,
+      modulId: tokenData.modulId,
+      expiresAt: tokenData.expiresAt,
+    };
+  }
+
+  async validateTokenSession(
+    tokenValue: string,
+    modulId: number,
+  ): Promise<boolean> {
+    const validation = await this.validateToken(tokenValue);
+    if (!validation.isValid || !validation.modulId) {
+      return false;
+    }
+    return validation.modulId === modulId;
   }
 
   async registrarAssistencia(alumneId: number, tokenValue: string) {
-    // 1. Validar Token
     const validation = await this.validateToken(tokenValue);
     if (!validation.isValid) {
-      throw new BadRequestException('Token invàlid o expirat');
+      if (validation.error === this.TOKEN_EXPIRED_ERROR) {
+        this.logsService.warn('Token QR expirat', 'AttendanceService', {
+          event: 'TOKEN_EXPIRED',
+          alumneId,
+          token: tokenValue.slice(0, 8) + '…',
+        });
+        throw new UnauthorizedException({
+          code: 'TOKEN_EXPIRED',
+          message: 'El token ha expirat',
+          expiresAt: validation.expiresAt,
+        });
+      }
+      this.logsService.warn(
+        'Token QR invàlid o ja utilitzat',
+        'AttendanceService',
+        {
+          event: 'TOKEN_INVALID',
+          alumneId,
+          token: tokenValue.slice(0, 8) + '…',
+        },
+      );
+      throw new BadRequestException({
+        code: 'TOKEN_INVALID',
+        message: 'Token invàlid o ja ha estat usat',
+      });
     }
 
-    // 2. Trobar Alumne
     const alumneQuery = await this.usuariRepo.findOne({
       where: { id: alumneId },
       relations: ['grup'],
     });
-    if (!alumneQuery) throw new NotFoundException('Alumne no trobat');
-    if (!alumneQuery.grup)
-      throw new BadRequestException("L'alumne no té grup assignat");
+    if (!alumneQuery) {
+      throw new NotFoundException({
+        code: 'STUDENT_NOT_FOUND',
+        message: 'Alumne no trobat',
+      });
+    }
+    if (!alumneQuery.grup) {
+      throw new BadRequestException({
+        code: 'NO_GROUP_ASSIGNED',
+        message: "L'alumne no té grup assignat",
+      });
+    }
 
-    // 3. Trobar Sessió Activa pel Grup de l'Alumne
     const sessio = await this.sessioRepo.findOne({
       where: {
         estat: SessioEstat.ACTIVA,
@@ -127,12 +222,42 @@ export class AttendanceService {
     });
 
     if (!sessio) {
-      throw new NotFoundException(
-        'No hi ha cap sessió activa per al teu grup ara mateix',
+      this.logsService.warn(
+        'No hi ha sessió activa per al grup',
+        'AttendanceService',
+        {
+          event: 'NO_ACTIVE_SESSION',
+          alumneId,
+          grupId: alumneQuery.grup.id,
+        },
       );
+      throw new BadRequestException({
+        code: this.NO_ACTIVE_SESSION_ERROR,
+        message: 'No hi ha cap sessió activa per al teu grup ara mateix',
+      });
     }
 
-    // 4. Comprovar si ja ha fitxat
+    if (
+      validation.modulId &&
+      sessio.assignacioDocent.assignaturaId !== validation.modulId
+    ) {
+      this.logsService.warn(
+        'Token no pertany a la sessió activa',
+        'AttendanceService',
+        {
+          event: 'INVALID_SESSION_FOR_TOKEN',
+          alumneId,
+          sessioId: sessio.id,
+          tokenModulId: validation.modulId,
+          sessioModulId: sessio.assignacioDocent.assignaturaId,
+        },
+      );
+      throw new BadRequestException({
+        code: this.INVALID_SESSION_FOR_TOKEN_ERROR,
+        message: 'El token no pertany a aquesta sessió',
+      });
+    }
+
     const assistenciaExistent = await this.assistenciaRepo.findOne({
       where: {
         sessio: { id: sessio.id },
@@ -141,30 +266,81 @@ export class AttendanceService {
     });
 
     if (assistenciaExistent) {
-      return {
-        success: true,
-        message: "Ja havies registrat l'assistència prèviament",
+      this.logsService.warn(
+        "Intent de doble registre d'Assistencia",
+        'AttendanceService',
+        {
+          event: 'DUPLICATE_ATTENDANCE',
+          alumneId,
+          sessioId: sessio.id,
+        },
+      );
+      throw new ConflictException({
+        code: this.DUPLICATE_ATTENDANCE_ERROR,
+        message: "Ja has registrat l'assistència prèviament",
         assistencia: assistenciaExistent,
-      };
+      });
     }
 
-    // 5. Crear Assistència
+    // Determinar l'estat a partir de la validació del token
+    const estatValidat: AssistenciaEstat =
+      (validation.estat as AssistenciaEstat) ?? AssistenciaEstat.PRESENT;
+
     const assistencia = this.assistenciaRepo.create({
       sessio: sessio,
       alumne: alumneQuery,
-      estat: (validation.estat as any) || AssistenciaEstat.PRESENT,
+      estat: estatValidat,
       metodeValidacio: MetodeValidacio.QR_MOBIL,
     });
 
     await this.assistenciaRepo.save(assistencia);
 
-    // Notificar al profesor en tiempo real
-    this.attendanceGateway.notifyAttendance(sessio.assignacioDocent.assignaturaId || 0, {
-      alumneId: alumneQuery.id,
-      nom: alumneQuery.nom,
-      estat: assistencia.estat,
-      data: assistencia.dataRegistre
+    // Marcar el token de BD com a usat per evitar reutilitzacions
+    const dbToken = await this.tokenRepository.findOne({
+      where: { token: tokenValue },
     });
+    if (dbToken) {
+      dbToken.isUsed = true;
+      await this.tokenRepository.save(dbToken);
+    }
+
+    this.logsService.attendanceRegistered(
+      alumneId,
+      sessio.id,
+      assistencia.estat,
+    );
+
+    this.attendanceGateway.notifyAttendance(
+      sessio.assignacioDocent.assignaturaId || 0,
+      {
+        alumneId: alumneQuery.id,
+        nom: alumneQuery.nom,
+        estat: assistencia.estat,
+        data: assistencia.dataRegistre,
+      },
+    );
+
+    // Notificar als pares si l'alumne no ha arribat o ha sortit abans d'hora
+    if (assistencia.estat === AssistenciaEstat.ABSENT || assistencia.estat === AssistenciaEstat.JUSTIFICAT) {
+      const now = new Date();
+      const horaClasse = now.getHours();
+      
+      if (horaClasse < 10) {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumneQuery],
+          '📚 Adsum - Absència',
+          `El/La ${alumneQuery.nom} no ha arrivat a classe aquest matí.`,
+          { alumneId: alumneQuery.id, tipus: 'absencia', data: now }
+        );
+      } else {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumneQuery],
+          '📚 Adsum - Sortida anticipada',
+          `El/La ${alumneQuery.nom} ha sortit de classe abans d'hora.`,
+          { alumneId: alumneQuery.id, tipus: 'sortida_anticipada', data: now }
+        );
+      }
+    }
 
     return {
       success: true,
@@ -182,18 +358,21 @@ export class AttendanceService {
 
     let assistencia = await this.assistenciaRepo.findOne({
       where: {
-        alumneId: alumneId,
-        modulId: modulId,
+        alumne: { id: alumneId },
         dataRegistre: Raw((alias) => `DATE(${alias}) = :avui`, { avui }),
       },
+      relations: ['alumne'],
     });
 
     if (assistencia) {
       assistencia.estat = estat as any;
     } else {
+      const alumne = await this.usuariRepo.findOne({ where: { id: alumneId } });
+      if (!alumne) {
+        throw new NotFoundException('Alumne no trobat');
+      }
       assistencia = this.assistenciaRepo.create({
-        alumneId,
-        modulId,
+        alumne: alumne,
         estat: estat as any,
         metodeValidacio: MetodeValidacio.PROFESSOR_MANUAL,
       });
@@ -205,8 +384,21 @@ export class AttendanceService {
     this.attendanceGateway.notifyAttendance(modulId, {
       alumneId: alumneId,
       estat: estat,
-      data: assistencia.dataRegistre
+      data: assistencia.dataRegistre,
     });
+
+    // Notificar als pares si el professor marca com absent
+    if (estat === 'ABSENT') {
+      const alumne = await this.usuariRepo.findOne({ where: { id: alumneId } });
+      if (alumne) {
+        await this.notificacionsService.enviarNotificacioFamilia(
+          [alumne],
+          '📚 Adsum - Absència registrada',
+          `El/La ${alumne.nom} ha estat marcat/da com absent pel professor.`,
+          { alumneId: alumneId, tipus: 'absencia_manual', data: new Date() }
+        );
+      }
+    }
 
     return result;
   }

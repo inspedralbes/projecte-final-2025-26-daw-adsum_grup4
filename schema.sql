@@ -3,9 +3,6 @@
 -- Versió: Final (MVP + Funcionalitats Avançades)
 -- =======================================================
 
-DROP DATABASE IF EXISTS adsum_qr;
-CREATE DATABASE adsum_qr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE adsum_qr;
 
 -- -------------------------------------------------------
 -- 1. CONFIGURACIÓ GLOBAL (Singleton)
@@ -72,6 +69,10 @@ CREATE TABLE usuaris (
     -- Meta-dades
     data_creacio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultim_acces TIMESTAMP NULL,
+
+    -- Recuperació de contrasenya
+    token_recuperacio VARCHAR(255) NULL,
+    caducitat_token_recuperacio DATETIME NULL,
 
     FOREIGN KEY (grup_id) REFERENCES grups(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;

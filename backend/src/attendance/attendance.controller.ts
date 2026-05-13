@@ -6,7 +6,7 @@ import { AttendanceService } from './attendance.service';
 @Controller('attendance')
 @UseGuards(JwtAuthGuard)
 export class AttendanceController {
-  constructor(private readonly attendanceService: AttendanceService) { }
+  constructor(private readonly attendanceService: AttendanceService) {}
 
   @Post('generate')
   async generate(

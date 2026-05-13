@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   db:
@@ -6,26 +5,35 @@ services:
     container_name: adsum_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: projecte_final
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-projecte_final}
+      MYSQL_USER: ${DB_USERNAME:-adsum_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
+    # ⚠️ PARA DESARROLLO LOCAL: El puerto de la base de datos está expuesto para facilitar conexiones externas
+    # ⚠️ EN PRODUCCIÓN: Este servicio NO debe tener puertos expuestos directamente al host
+    # En producción, la base de datos solo debe ser accesible desde la red interna de Docker
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: adsum_pma
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - '8080:80'
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_User: root
-      PMA_Password: root
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   container_name: adsum_pma
+  #   restart: always
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - '8080:80'
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_PORT: 3306
+  #     PMA_User: root
+  #     PMA_Password: root
+  # # ⚠️ SERVICIO COMENTADO POR SEGURIDAD
+  # # Para habilitar phpMyAdmin en desarrollo local, descomentar las líneas anteriores
+  # # NUNCA habilitar en entornos de producción sin autenticación adicional y acceso restringido
 
   backend:
     build:
@@ -39,9 +47,13 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
-      - DB_NAME=projecte_final
+      - DB_USERNAME=${DB_USERNAME:-adsum_user}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - DB_NAME=${DB_NAME:-projecte_final}
+      - JWT_SECRET=${JWT_SECRET:-secret}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-BAYpv9NMlZYady-ke2W-h4Zlcf0sn0hCVPWotImSKHnmo8BWPzCJJbI3ZUtV2-Sx3nInjqfzYAb-BzYw2gFuN7U}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-IkJ7-GJfmox9Lza5wZzbQx-8zxr7dVsFe6ewasS-be8}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@adsum.edu}
     depends_on:
       - db
     volumes:
@@ -56,7 +68,7 @@ services:
     container_name: adsum_frontend
     restart: always
     ports:
-      - "5173:5173"
+      - "3001:5173"
     depends_on:
       - backend
     volumes:

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
@@ -15,7 +17,7 @@ export class UsersService {
     private readonly assistenciaRepositori: Repository<Assistencia>,
     @InjectRepository(Modul)
     private readonly modulRepositori: Repository<Modul>,
-  ) { }
+  ) {}
 
   async crear(dadesUsuari: Partial<Usuari>): Promise<Usuari> {
     const nouUsuari = this.usuariRepositori.create(dadesUsuari);

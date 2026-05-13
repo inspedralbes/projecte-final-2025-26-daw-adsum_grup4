@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
+import { LogsModule } from './logs/logs.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -37,7 +39,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
+        type: (configService.get<string>('DB_TYPE') as any) || 'mysql',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USERNAME'),
@@ -62,7 +64,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
           Dispositiu,
           AttendanceToken,
         ],
-        synchronize: true,
+        synchronize: false,
         retryAttempts: 10,
         retryDelay: 3000,
         autoLoadEntities: true,
@@ -75,6 +77,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
     SeedModule,
     NotificacionsModule,
     AuthModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

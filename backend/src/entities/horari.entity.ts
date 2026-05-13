@@ -29,7 +29,7 @@ export class Horari {
   @JoinColumn({ name: 'assignacio_docent_id' })
   assignacioDocent: AssignacioDocent;
 
-  @Column({ type: 'enum', enum: DiaSetmana })
+  @Column({ enum: DiaSetmana })
   diaSetmana: DiaSetmana;
 
   @Column({ name: 'hora_inici', type: 'time' })
