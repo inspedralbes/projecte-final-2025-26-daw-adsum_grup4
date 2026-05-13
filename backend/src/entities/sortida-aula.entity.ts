@@ -46,4 +46,7 @@ export class SortidaAula {
     nullable: true,
   })
   duradaMinuts: number;
+
+  @Column({ name: 'motiu', enum: MotiuSortida, nullable: true })
+  motiu: MotiuSortida;
 }

@@ -10,6 +10,7 @@
           <DashboardProfessor v-if="!selectedClass" :user="currentUser" @select-class="onSelectClass" />
           <ClasseDetall v-else :user="currentUser" :modul="selectedClass" @back="selectedClass = null" />
         </div>
+        <GrupsView v-else-if="activeView === 'performance'" :user="currentUser" />
         <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
           <p class="text-4xl mb-4">🚧</p>
           <p class="font-bold uppercase tracking-widest text-xs">Secció de Professor en construcció</p>
@@ -19,6 +20,8 @@
       <div v-else-if="currentUser?.rol === 'alumne'">
         <DashboardBento v-if="activeView === 'home'" :user="currentUser" />
         <PerformanceView v-else-if="activeView === 'performance'" :user="currentUser" />
+        <HallpassView v-else-if="activeView === 'hallpass'" :user="currentUser" />
+        <ResourcesView v-else-if="activeView === 'resources'" :user="currentUser" />
         <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
           <p class="text-4xl mb-4">🚧</p>
           <p class="font-bold uppercase tracking-widest text-xs">Secció en construcció</p>
@@ -32,6 +35,8 @@
           <p class="font-bold uppercase tracking-widest text-xs">Panel de Administrador</p>
           <p class="text-sm mt-1">Benvingut, {{ currentUser.nom }}. Les eines de gestión estaran disponibles aviat.</p>
         </div>
+        <AdminUsersView v-else-if="activeView === 'users'" :user="currentUser" />
+        <AdminCenterView v-else-if="activeView === 'center'" :user="currentUser" />
         <div v-else class="flex flex-col items-center justify-center py-20 text-slate-400 animate-fade-in">
           <p class="text-4xl mb-4">🚧</p>
           <p class="font-bold uppercase tracking-widest text-xs">Secció d'Admin en construcció</p>
@@ -49,6 +54,11 @@ import DashboardBento from './views/DashboardBento.vue';
 import PerformanceView from './views/PerformanceView.vue';
 import DashboardProfessor from './views/DashboardProfessor.vue';
 import ClasseDetall from './views/ClasseDetall.vue';
+import HallpassView from './views/HallpassView.vue';
+import GrupsView from './views/GrupsView.vue';
+import AdminUsersView from './views/AdminUsersView.vue';
+import AdminCenterView from './views/AdminCenterView.vue';
+import ResourcesView from './views/ResourcesView.vue';
 
 const isLoggedIn = ref(!!localStorage.getItem('access_token'));
 const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));
