@@ -8,21 +8,23 @@
         <div v-if="isExpanded" class="fixed inset-0 z-0" @click="toggleHub"></div>
 
         <!-- HUB CENTRAL EXPANDIBLE -->
-        <div 
-            class="relative z-10 rounded-[3rem] glass-orb shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden"
+        <button
+            class="relative z-10 rounded-[3rem] glass-orb shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden focus:outline-none focus:ring-4 focus:ring-indigo-500/50"
             :class="isExpanded ? 'w-[85vw] h-[70vh] max-w-md' : 'w-64 h-64 flex flex-col items-center justify-center'"
             @click="!isExpanded && toggleHub()"
+            :aria-expanded="isExpanded"
+            aria-label="Adsum Hub - Clica per expandir el teu perfil digital"
         >
             <!-- CONTENIDO MODO CERRADO (ORBE) -->
             <div v-if="!isExpanded" class="text-center animate-pulse-slow">
-                <p class="text-[0.6rem] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Status: Active</p>
+                <p class="text-[0.6rem] font-black uppercase tracking-[0.3em] text-white/80 mb-1">Status: Active</p>
                 <h2 class="text-lg font-black tracking-tight leading-none italic uppercase">Adsum Hub</h2>
             </div>
 
             <!-- CONTENIDO MODO ABIERTO (QR) -->
             <div v-if="isExpanded" class="w-full h-full p-8 flex flex-col items-center justify-between animate-fade-in">
                 <div class="flex justify-between w-full items-center">
-                    <p class="text-[0.7rem] font-black uppercase tracking-widest opacity-60">Digital Identity</p>
+                    <p class="text-[0.7rem] font-black uppercase tracking-widest text-white/80">Digital Identity</p>
                     <button @click.stop="toggleHub" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">✕</button>
                 </div>
 
@@ -36,7 +38,7 @@
                     
                     <div class="text-center">
                         <p class="text-xl font-bold">Andreia López</p>
-                        <p class="text-[0.6rem] opacity-40 uppercase font-black tracking-widest">Grup 4 · DAW</p>
+                        <p class="text-[0.6rem] text-white/60 uppercase font-black tracking-widest">Grup 4 · DAW</p>
                     </div>
                 </div>
 
@@ -51,24 +53,25 @@
                 <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                 <div class="w-1.5 h-1.5 rounded-full bg-white opacity-40"></div>
             </div>
-        </div>
+        </button>
 
         <!-- NODOS ORBITALES (Se ocultan cuando el hub se expande) -->
-        <div 
-            v-for="(node, index) in nodes" 
+        <button
+            v-for="(node, index) in nodes"
             :key="index"
-            class="absolute z-20 orbital-node flex items-center justify-center cursor-pointer transition-all duration-500"
+            class="absolute z-20 orbital-node flex items-center justify-center cursor-pointer transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-white/50"
             :class="[node.id, { 'opacity-0 scale-0 pointer-events-none': isExpanded }]"
             :style="nodeStyles[index]"
             @click="activeView = node.id"
+            :aria-label="node.label"
         >
             <div class="glass-node w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-transform">
-                <span class="text-xl">{{ node.icon }}</span>
+                <span class="text-xl" aria-hidden="true">{{ node.icon }}</span>
             </div>
             <p class="absolute -bottom-6 text-[0.6rem] font-bold uppercase tracking-tighter opacity-0 node-label transition-opacity whitespace-nowrap">
                 {{ node.label }}
             </p>
-        </div>
+        </button>
 
     </div>
 </template>

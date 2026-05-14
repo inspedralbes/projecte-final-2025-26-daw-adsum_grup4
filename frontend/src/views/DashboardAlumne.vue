@@ -22,7 +22,7 @@
             </svg>
           </div>
           <p class="font-black text-slate-800 text-xl">Notes</p>
-          <p class="text-xs text-slate-400 mt-0.5">Simulador i rendiment</p>
+          <p class="text-xs text-slate-500 mt-0.5">Simulador i rendiment</p>
         </button>
         <!-- Tarjeta: Assistència -->
         <button @click="activeView = 'attendance'"
@@ -33,7 +33,7 @@
             </svg>
           </div>
           <p class="font-black text-slate-800 text-xl">Assistència</p>
-          <p class="text-xs text-slate-400 mt-0.5">Faltes i ratxes</p>
+          <p class="text-xs text-slate-500 mt-0.5">Faltes i ratxes</p>
         </button>
       </div>
       <!-- Fila 2 -->
@@ -47,7 +47,7 @@
             </svg>
           </div>
           <p class="font-black text-slate-800 text-xl">Recursos</p>
-          <p class="text-xs text-slate-400 mt-0.5">Apunts i comunitat</p>
+          <p class="text-xs text-slate-500 mt-0.5">Apunts i comunitat</p>
         </button>
         <!-- Tarjeta: Passadís -->
         <button @click="activeView = 'hallpass'"
@@ -58,7 +58,7 @@
             </svg>
           </div>
           <p class="font-black text-slate-800 text-xl">Passadís</p>
-          <p class="text-xs text-slate-400 mt-0.5">Sortida de classe</p>
+          <p class="text-xs text-slate-500 mt-0.5">Sortida de classe</p>
         </button>
       </div>
     </main>
@@ -94,12 +94,12 @@
         <div v-if="activeView === 'attendance'">
           <AttendanceStats />
         </div>
-        <div v-if="activeView === 'resources'" class="text-center py-10 text-slate-400">
+        <div v-if="activeView === 'resources'" class="text-center py-10 text-slate-500">
           <p class="text-4xl mb-3">📚</p>
           <p class="font-bold">Recursos i Comunitat</p>
           <p class="text-sm mt-1">Properament</p>
         </div>
-        <div v-if="activeView === 'hallpass'" class="text-center py-10 text-slate-400">
+        <div v-if="activeView === 'hallpass'" class="text-center py-10 text-slate-500">
           <p class="text-4xl mb-3">🚪</p>
           <p class="font-bold">Passadís Digital</p>
           <p class="text-sm mt-1">Properament</p>
