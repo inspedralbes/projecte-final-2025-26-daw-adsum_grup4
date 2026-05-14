@@ -31,7 +31,6 @@
         </button>
       </div>
     </div>
-    </div>
 
     <!-- TAB 1: ASSISTÈNCIA -->
     <div v-if="activeTab === 'attendance'" class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
