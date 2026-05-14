@@ -1,115 +1,67 @@
 {
     "admins": [
-        {
-            "nom": "Administrador",
-            "cognoms": "Adsum",
-            "email": "admin@adsum.cat",
-            "contrasenya": "admin123"
-        }
+        { "nom": "Admin", "cognoms": "ADSUM", "email": "admin@adsum.cat", "contrasenya": "admin123" }
     ],
     "professors": [
-        {
-            "nom": "Joan",
-            "cognoms": "Professor",
-            "email": "joan@adsum.cat",
-            "contrasenya": "profe123",
-            "departament": "Informàtica"
-        },
-        {
-            "nom": "Marta",
-            "cognoms": "Professor",
-            "email": "marta@adsum.cat",
-            "contrasenya": "profe123",
-            "departament": "Informàtica"
-        },
-        {
-            "nom": "Pere",
-            "cognoms": "Professor",
-            "email": "pere@adsum.cat",
-            "contrasenya": "profe123",
-            "departament": "Informàtica"
-        }
+        { "nom": "Joan", "cognoms": "Font", "email": "joan.font@adsum.cat", "contrasenya": "profe123", "departament": "Sistemes" },
+        { "nom": "Marta", "cognoms": "Vila", "email": "marta.vila@adsum.cat", "contrasenya": "profe123", "departament": "Programació" },
+        { "nom": "Toni", "cognoms": "Sants", "email": "toni.sants@adsum.cat", "contrasenya": "profe123", "departament": "Disseny" },
+        { "nom": "Anna", "cognoms": "Gual", "email": "anna.gual@adsum.cat", "contrasenya": "profe123", "departament": "FOL" }
+    ],
+    "pares": [
+        { "nom": "Jordi", "cognoms": "Soler", "email": "jordi.soler@gmail.com", "contrasenya": "pare123", "fill_email": "arnau.soler@adsum.cat" }
     ],
     "alumnes": [
-        {
-            "nom": "Marc",
-            "cognoms": "Garcia",
-            "email": "marc.garcia@adsum.cat",
-            "contrasenya": "alumne123",
-            "nivell_educatiu": "cicles",
-            "grup_codi": "2DAW-A",
-            "gamificacio": {
-                "ratxa_actual_dies": 12,
-                "ratxa_maxima_dies": 20,
-                "punts_acumulats": 1250,
-                "nivell_actual": 5,
-                "insignies_desbloquejades": [
-                    {
-                        "id_insignia": "puntualitat_ferro",
-                        "data_obtencio": "2024-10-15"
-                    },
-                    {
-                        "id_insignia": "assistencia_perfecta_mes",
-                        "data_obtencio": "2024-11-01"
-                    }
-                ]
-            },
-            "configuracio": {
-                "tema_interficie": "fosc",
-                "idioma_preferit": "ca",
-                "accessibilitat": {
-                    "alt_contrast": false,
-                    "mida_lletra_gran": false
-                },
-                "notificacions": {
-                    "avisos_falta_immediats": true,
-                    "resum_setmanal_email": true
-                }
-            },
-            "familia": [
-                {
-                    "nom_complet": "Marta Soler",
-                    "parentiu": "Mare",
-                    "telefon_principal": "600123456",
-                    "autoritza_sortides_sol": true,
-                    "contacte_emergencia_principal": true
-                },
-                {
-                    "nom_complet": "Jordi Vila",
-                    "parentiu": "Pare",
-                    "telefon_principal": "600987654",
-                    "autoritza_sortides_sol": false,
-                    "contacte_emergencia_principal": false
-                }
-            ]
-        },
-        {
-            "nom": "Laia",
-            "cognoms": "Martínez",
-            "email": "laia.martinez@adsum.cat",
-            "contrasenya": "alumne123",
-            "nivell_educatiu": "cicles",
-            "grup_codi": "1DAW-A",
-            "gamificacio": {
-                "ratxa_actual_dies": 3,
-                "ratxa_maxima_dies": 5,
-                "punts_acumulats": 450,
-                "nivell_actual": 2,
-                "insignies_desbloquejades": []
-            },
-            "configuracio": {
-                "tema_interficie": "clar",
-                "idioma_preferit": "ca",
-                "accessibilitat": {
-                    "alt_contrast": false,
-                    "mida_lletra_gran": false
-                },
-                "notificacions": {
-                    "avisos_falta_immediats": true,
-                    "resum_setmanal_email": false
-                }
-            },
-            "familia": []
-        }
+        { "nom": "Arnau", "cognoms": "Soler", "email": "arnau.soler@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Berta", "cognoms": "Valls", "email": "berta.valls@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Carles", "cognoms": "Puig", "email": "carles.puig@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Diana", "cognoms": "Riba", "email": "diana.riba@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Enric", "cognoms": "Martí", "email": "enric.marti@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Fiona", "cognoms": "Bosch", "email": "fiona.bosch@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Gerard", "cognoms": "Mas", "email": "gerard.mas@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Helena", "cognoms": "Sanz", "email": "helena.sanz@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Ivan", "cognoms": "Romeu", "email": "ivan.romeu@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Jana", "cognoms": "Vila", "email": "jana.vila@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Kilian", "cognoms": "Font", "email": "kilian.font@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Laura", "cognoms": "Gual", "email": "laura.gual@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Marc", "cognoms": "Comas", "email": "marc.comas@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Neus", "cognoms": "Solé", "email": "neus.sole@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Oriol", "cognoms": "Roca", "email": "oriol.roca@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Paula", "cognoms": "Serra", "email": "paula.serra@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Quim", "cognoms": "Arqué", "email": "quim.arque@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Rosa", "cognoms": "Mestre", "email": "rosa.mestre@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Sergi", "cognoms": "Blanc", "email": "sergi.blanc@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Tania", "cognoms": "Vidal", "email": "tania.vidal@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Unai", "cognoms": "Cruz", "email": "unai.cruz@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Vera", "cognoms": "López", "email": "vera.lopez@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Walid", "cognoms": "Ben", "email": "walid.ben@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Xavi", "cognoms": "Galan", "email": "xavi.galan@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Yara", "cognoms": "Juste", "email": "yara.juste@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAW-A" },
+        { "nom": "Albert", "cognoms": "Tello", "email": "albert.tello@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Blanca", "cognoms": "Ruiz", "email": "blanca.ruiz@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Cristian", "cognoms": "Faro", "email": "cristian.faro@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Dolors", "cognoms": "Costa", "email": "dolors.costa@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Eloi", "cognoms": "Planes", "email": "eloi.planes@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Fatima", "cognoms": "Zahra", "email": "fatima.zahra@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Gabriel", "cognoms": "Pou", "email": "gabriel.pou@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Hugo", "cognoms": "Moyano", "email": "hugo.moyano@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Inés", "cognoms": "Garzón", "email": "ines.garzon@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Jordi", "cognoms": "Cullell", "email": "jordi.cullell@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Karen", "cognoms": "Silva", "email": "karen.silva@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Lluís", "cognoms": "Bassas", "email": "lluis.bassas@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Mireia", "cognoms": "Verdaguer", "email": "mireia.verdaguer@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Nil", "cognoms": "Castell", "email": "nil.castell@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Olga", "cognoms": "Pardo", "email": "olga.pardo@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Pol", "cognoms": "Galí", "email": "pol.gali@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Queralt", "cognoms": "Homs", "email": "queralt.homs@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Ricard", "cognoms": "Sants", "email": "ricard.sants@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Sara", "cognoms": "Buendía", "email": "sara.buendia@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Tomàs", "cognoms": "Oller", "email": "tomas.oller@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Úrsula", "cognoms": "Dalmau", "email": "ursula.dalmau@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Valentí", "cognoms": "Gràcia", "email": "valenti.gracia@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Xavier", "cognoms": "Noguera", "email": "xavier.noguera@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Yolanda", "cognoms": "Reig", "email": "yolanda.reig@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Zaira", "cognoms": "Muixí", "email": "zaira.muixi@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" },
+        { "nom": "Raul", "cognoms": "Clyde", "email": "raul.clyde@adsum.cat", "contrasenya": "alumne123", "grup_codi": "2DAM-A" }
     ]
 }

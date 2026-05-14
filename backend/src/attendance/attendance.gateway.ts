@@ -48,26 +48,24 @@ export class AttendanceGateway
     return { event: 'pong', data: '¡Hola desde el Backend!' };
   }
 
-  onModuleInit() {
-    this.startQrLoop();
-  }
-
-  startQrLoop() {
-    // Generamos un nuevo QR cada 5 segundos (per als antics tests de QR)
-    setInterval(async () => {
-      // Passem IDs per defecte per evitar errors si el loop segueix actiu
-      const tokenData = await this.attendanceService.generateToken(0, 0);
-      this.server.emit('new_qr', {
-        token: tokenData.token,
-        expiresAt: tokenData.expiresAt,
-      });
-      console.log('Nou QR generat', tokenData.token);
-    }, 5000);
-  }
-
   notifyAttendance(modulId: number, data: any) {
     const room = `module_${modulId}`;
     this.server.to(room).emit('attendance_updated', data);
-    console.log(`Notificación de asistencia enviada a sala ${room}`);
+    console.log(`Notificació d'assistència enviada a sala ${room}`);
+  }
+
+  broadcastNewToken(modulId: number, token: string) {
+    const room = `module_${modulId}`;
+    this.server.to(room).emit('new_qr', {
+      token: token,
+      expiresAt: new Date(Date.now() + 5000), // Válido para los próximos 5s en modo dinámico
+    });
+    console.log(`Nou token ${token} enviat a sala ${room}`);
+  }
+
+  notifyHallPass(modulId: number, data: any) {
+    const room = `module_${modulId}`;
+    this.server.to(room).emit('hall_pass_updated', data);
+    console.log(`Notificació de passadís enviada a sala ${room}`);
   }
 }

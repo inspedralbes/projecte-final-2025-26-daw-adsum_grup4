@@ -1,22 +1,12 @@
 [
     {
-        "codi": "1DAW-A",
-        "nom": "1r Desenvolupament Web A",
-        "aula_base": "Aula 201"
-    },
-    {
         "codi": "2DAW-A",
-        "nom": "2n Desenvolupament Web A",
-        "aula_base": "Aula 202"
-    },
-    {
-        "codi": "1DAM-A",
-        "nom": "1r Desenvolupament Multiplataforma A",
-        "aula_base": "Aula 203"
+        "nom": "2n Desenvolupament Aplicacions Web",
+        "aula_base": "Aula 101"
     },
     {
         "codi": "2DAM-A",
-        "nom": "2n Desenvolupament Multiplataforma A",
-        "aula_base": "Aula 204"
+        "nom": "2n Desenvolupament Aplicacions Multiplataforma",
+        "aula_base": "Aula 102"
     }
 ]

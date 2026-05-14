@@ -9,6 +9,14 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { AiModule } from './ai/ai.module';
+import { Missatge } from './entities/missatge.entity';
+import { Recurs } from './entities/recurs.entity';
+import { ResourcesModule } from './resources/resources.module';
+import { JustificationsModule } from './justifications/justifications.module';
+import { BookingModule } from './booking/booking.module';
+import { ExportModule } from './export/export.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -27,6 +35,8 @@ import { Modul } from './entities/modul.entity';
 import { Nota } from './entities/nota.entity';
 import { AttendanceToken } from './entities/attendance-token.entity';
 import { Dispositiu } from './entities/dispositiu.entity';
+import { Espai } from './entities/espai.entity';
+import { Reserva } from './entities/reserva.entity';
 
 @Module({
   imports: [
@@ -61,6 +71,10 @@ import { Dispositiu } from './entities/dispositiu.entity';
           Nota,
           Dispositiu,
           AttendanceToken,
+          Missatge,
+          Recurs,
+          Espai,
+          Reserva,
         ],
         synchronize: true,
         retryAttempts: 10,
@@ -75,6 +89,12 @@ import { Dispositiu } from './entities/dispositiu.entity';
     SeedModule,
     NotificacionsModule,
     AuthModule,
+    ChatModule,
+    AiModule,
+    ResourcesModule,
+    JustificationsModule,
+    BookingModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

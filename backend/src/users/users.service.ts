@@ -294,4 +294,43 @@ export class UsersService {
     await this.usuariRepositori.save(newStudents);
     return { success: true, message: `Added ${newStudents.length} students` };
   }
+
+  async getAlumneNotes(id: number) {
+    const usuari = await this.usuariRepositori.findOne({
+      where: { id },
+      relations: ['notes', 'notes.modul'],
+    });
+    if (!usuari) return [];
+    return usuari.notes.map(n => ({
+      id: n.id_nota,
+      modul: n.modul?.nom || 'Desconegut',
+      valor: Number(n.valor),
+      comentari: n.comentari,
+      data: n.data_registre
+    }));
+  }
+
+  async getAlumneSchedule(id: number) {
+    const alumne = await this.usuariRepositori.findOne({
+      where: { id },
+      relations: ['grup'],
+    });
+    if (!alumne || !alumne.grup) return [];
+
+    // Busquem mòduls del grup de l'alumne
+    const moduls = await this.modulRepositori.find({
+      where: { grup: { id: alumne.grup.id } },
+      relations: ['professor'],
+    });
+
+    // Per a la demo, retornem sessions fixes basades en els mòduls del grup
+    return moduls.map(m => ({
+      id: m.id,
+      modul: m.nom,
+      professor: `${m.professor?.nom} ${m.professor?.cognoms}`,
+      hora: '08:00 - 14:00', // Horari estàndard FP
+      aula: alumne.grup?.aulaBase || 'Aula 101',
+      estat: 'pendent'
+    }));
+  }
 }

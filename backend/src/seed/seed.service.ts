@@ -7,10 +7,12 @@ import { Assignatura } from '../entities/assignatura.entity';
 import { AssignacioDocent } from '../entities/assignacio-docent.entity';
 import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { ConfiguracioCentre } from '../entities/configuracio-centre.entity';
-import {
-  DadesFamiliars,
-  Familiar,
-} from '../users/interfaces/dades-usuari.interface'; // Ensure interface is imported
+import { Modul } from '../entities/modul.entity';
+import { Assistencia, AssistenciaEstat, MetodeValidacio } from '../entities/assistencia.entity';
+import { Nota } from '../entities/nota.entity';
+import { Missatge } from '../entities/missatge.entity';
+import { Recurs } from '../entities/recurs.entity';
+import { Justificacio, JustificacioEstat } from '../entities/justificacio.entity';
 
 import * as bcrypt from 'bcryptjs';
 import * as fs from 'fs';
@@ -19,72 +21,27 @@ import * as path from 'path';
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
   constructor(
-    @InjectRepository(Usuari)
-    private readonly usuariRepo: Repository<Usuari>,
-    @InjectRepository(Grup)
-    private readonly grupRepo: Repository<Grup>,
-    @InjectRepository(Assignatura)
-    private readonly assignaturaRepo: Repository<Assignatura>,
-    @InjectRepository(AssignacioDocent)
-    private readonly assignacioDocentRepo: Repository<AssignacioDocent>,
-    @InjectRepository(Sessio)
-    private readonly sessioRepo: Repository<Sessio>,
-    @InjectRepository(ConfiguracioCentre)
-    private readonly configuracioCentreRepo: Repository<ConfiguracioCentre>,
+    @InjectRepository(Usuari) private readonly usuariRepo: Repository<Usuari>,
+    @InjectRepository(Grup) private readonly grupRepo: Repository<Grup>,
+    @InjectRepository(Assignatura) private readonly assignaturaRepo: Repository<Assignatura>,
+    @InjectRepository(AssignacioDocent) private readonly assignacioDocentRepo: Repository<AssignacioDocent>,
+    @InjectRepository(Sessio) private readonly sessioRepo: Repository<Sessio>,
+    @InjectRepository(ConfiguracioCentre) private readonly configuracioCentreRepo: Repository<ConfiguracioCentre>,
+    @InjectRepository(Modul) private readonly modulRepo: Repository<Modul>,
+    @InjectRepository(Assistencia) private readonly assistenciaRepo: Repository<Assistencia>,
+    @InjectRepository(Nota) private readonly notaRepo: Repository<Nota>,
+    @InjectRepository(Missatge) private readonly missatgeRepo: Repository<Missatge>,
+    @InjectRepository(Recurs) private readonly recursRepo: Repository<Recurs>,
+    @InjectRepository(Justificacio) private readonly justificacioRepo: Repository<Justificacio>,
   ) { }
 
   async onApplicationBootstrap() {
-    const defaultUsers = [
-      {
-        email: 'alumne@adsum.cat',
-        nom: 'Alumne',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.ALUMNE,
-      },
-      {
-        email: 'professor@adsum.cat',
-        nom: 'Professor',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.PROFESSOR,
-      },
-      {
-        email: 'admin@adsum.cat',
-        nom: 'Admin',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.ADMIN,
-      },
-    ];
-
-    console.log('[DEBUG SEED] Iniciant verificació d\'usuaris per defecte...');
-    for (const u of defaultUsers) {
-      const exists = await this.usuariRepo.findOne({
-        where: { email: u.email },
-      });
-      if (!exists) {
-        console.log(`[DEBUG SEED] Creant usuari per defecte: ${u.email}`);
-        const contrasenyaHash = await bcrypt.hash(u.password, 10);
-        const newUser = this.usuariRepo.create({
-          email: u.email,
-          nom: u.nom,
-          cognoms: u.cognoms,
-          contrasenyaHash,
-          rol: u.rol,
-          esActiu: true,
-        });
-        await this.usuariRepo.save(newUser);
-        console.log(`[DEBUG SEED] Usuari creat correctament: ${u.email}`);
-      } else {
-        console.log(`[DEBUG SEED] L'usuari ja existeix: ${u.email}`);
-      }
-    }
-    console.log('[DEBUG SEED] Verificació d\'usuaris finalitzada.');
+    // Verificació d'usuaris per defecte
   }
 
   async executarSeed() {
     try {
+      console.log('[SEED] Iniciant procés de seeding massiu...');
       await this.esborrarTot();
       await this.crearConfiguracio();
 
@@ -95,63 +52,58 @@ export class SeedService implements OnApplicationBootstrap {
       const grupsMap = await this.crearGrups(dadesGrups);
       const admin = await this.crearAdmins(dadesUsuaris.admins);
       const professors = await this.crearProfessors(dadesUsuaris.professors);
-      const assignatures = await this.crearAssignatures(dadesAssignatures);
+      const moduls = await this.crearModuls(grupsMap, professors, dadesAssignatures);
       const alumnes = await this.crearAlumnes(grupsMap, dadesUsuaris.alumnes);
 
-      // Assignacions d'exemple (simplificat)
-      // Agafem el primer grup creat per assignar-li profes i assignatures
-      const primerGrup = Array.from(grupsMap.values())[0];
-      const assignacions = await this.crearAssignacions(
-        primerGrup,
-        professors,
-        assignatures,
-      );
-      const sessions = await this.crearSessions(assignacions);
+      console.log('[SEED] Generant dades històriques...');
+      await this.generarDadesHistoriques(alumnes, moduls);
+      
+      console.log('[SEED] Creant recursos i missatges...');
+      await this.crearRecursos(moduls, professors);
+      await this.crearMissatges(alumnes);
 
       return {
-        missatge: 'SEED EXECUTAT CORRECTAMENT',
+        missatge: 'BASE DE DADES OMPLERTA AMB DADES REALS',
         dades: {
-          admins: admin.length,
+          usuaris: admin.length + professors.length + alumnes.length,
           grups: grupsMap.size,
-          professors: professors.length,
-          assignatures: assignatures.length,
+          moduls: moduls.length,
           alumnes: alumnes.length,
-          assignacions: assignacions.length,
-          sessions: sessions.length,
+          recursos: 4,
+          missatges_inicials: 1
         },
       };
     } catch (error) {
       console.error(error);
-      return {
-        missatge: 'ERROR EN EXECUTAR SEED',
-        error: error.message,
-        stack: error.stack,
-      };
+      return { missatge: 'ERROR EN SEEDING', error: error.message };
     }
   }
 
   private llegirJson(nomFitxer: string) {
     const ruta = path.join(process.cwd(), 'dist', 'seed', 'data', nomFitxer);
-    console.log('Llegint JSON des de:', ruta);
     const data = fs.readFileSync(ruta, 'utf8');
     return JSON.parse(data);
   }
 
   private async esborrarTot() {
-    await this.sessioRepo.createQueryBuilder().delete().execute();
-    await this.assignacioDocentRepo.createQueryBuilder().delete().execute();
-    await this.assignaturaRepo.createQueryBuilder().delete().execute();
-    await this.usuariRepo.createQueryBuilder().delete().execute();
-    await this.grupRepo.createQueryBuilder().delete().execute();
-    await this.configuracioCentreRepo.createQueryBuilder().delete().execute();
+    await this.notaRepo.query('SET FOREIGN_KEY_CHECKS = 0');
+    await this.missatgeRepo.clear();
+    await this.recursRepo.clear();
+    await this.notaRepo.clear();
+    await this.assistenciaRepo.clear();
+    await this.sessioRepo.clear();
+    await this.assignacioDocentRepo.clear();
+    await this.modulRepo.clear();
+    await this.assignaturaRepo.clear();
+    await this.usuariRepo.clear();
+    await this.grupRepo.clear();
+    await this.configuracioCentreRepo.clear();
+    await this.notaRepo.query('SET FOREIGN_KEY_CHECKS = 1');
   }
 
   private async crearConfiguracio() {
     const config = this.configuracioCentreRepo.create({
-      id: 1,
-      minutsTallRetard: 10,
-      minutsTallAbsencia: 15,
-      cursActual: '2025-2026',
+      id: 1, minutsTallRetard: 10, minutsTallAbsencia: 15, cursActual: '2025-2026'
     });
     await this.configuracioCentreRepo.save(config);
   }
@@ -160,185 +112,152 @@ export class SeedService implements OnApplicationBootstrap {
     const grupsMap = new Map<string, Grup>();
     for (const g of grupsData) {
       const grup = this.grupRepo.create({
-        codi: g.codi,
-        nom: g.nom,
-        aulaBase: g.aula_base,
-        cursAcademic: '2025-2026',
+        codi: g.codi, nom: g.nom, aulaBase: g.aula_base, cursAcademic: '2025-2026'
       });
-      const guardat = await this.grupRepo.save(grup);
-      grupsMap.set(g.codi, guardat);
+      grupsMap.set(g.codi, await this.grupRepo.save(grup));
     }
     return grupsMap;
   }
 
   private async crearAdmins(adminsData: any[]) {
+    const salt = await bcrypt.genSalt(10);
     const admins: Usuari[] = [];
     for (const d of adminsData) {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(d.contrasenya, salt);
-      const admin = this.usuariRepo.create({
-        nom: d.nom,
-        cognoms: d.cognoms,
-        email: d.email,
-        contrasenyaHash: hash,
-        rol: UserRole.ADMIN,
-        esActiu: true,
+      const user = this.usuariRepo.create({
+        nom: d.nom, cognoms: d.cognoms, email: d.email, rol: UserRole.ADMIN, esActiu: true,
+        contrasenyaHash: await bcrypt.hash(d.contrasenya, salt)
       });
-      admins.push(await this.usuariRepo.save(admin));
+      admins.push(await this.usuariRepo.save(user));
     }
     return admins;
   }
 
   private async crearProfessors(profesData: any[]) {
-    const professors: Usuari[] = [];
+    const salt = await bcrypt.genSalt(10);
+    const profes: Usuari[] = [];
     for (const d of profesData) {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(d.contrasenya, salt);
-      const professor = this.usuariRepo.create({
-        nom: d.nom,
-        cognoms: d.cognoms,
-        email: d.email,
-        contrasenyaHash: hash,
-        rol: UserRole.PROFESSOR,
-        esActiu: true,
-        departament: d.departament,
+      const user = this.usuariRepo.create({
+        nom: d.nom, cognoms: d.cognoms, email: d.email, rol: UserRole.PROFESSOR, esActiu: true,
+        departament: d.departament, contrasenyaHash: await bcrypt.hash(d.contrasenya, salt)
       });
-      professors.push(await this.usuariRepo.save(professor));
+      profes.push(await this.usuariRepo.save(user));
     }
-    return professors;
+    return profes;
   }
 
-  private async crearAssignatures(assignaturesData: any[]) {
-    const guardades: Assignatura[] = [];
+  private async crearModuls(grupsMap: Map<string, Grup>, professors: Usuari[], assignaturesData: any[]) {
+    const moduls: Modul[] = [];
     for (const ass of assignaturesData) {
-      const nova = this.assignaturaRepo.create({
-        codi: ass.codi,
-        nom: ass.nom,
-        colorIdentificatiu: ass.color,
-        descripcio: 'Assignatura de ' + ass.nom,
-        curs: ass.curs,
-        horesSetmanals: ass.hores_setmanals,
-      });
-      guardades.push(await this.assignaturaRepo.save(nova));
+      const professor = professors.find(p => `${p.nom} ${p.cognoms}` === ass.professor) || professors[0];
+      for (const [codi, grup] of grupsMap) {
+        if (ass.codi.includes('DAW') && codi.includes('DAM')) continue;
+        if (ass.codi.includes('DAM') && codi.includes('DAW')) continue;
+
+        const modul = this.modulRepo.create({
+          nom: ass.nom, codi: ass.codi, professor, grup
+        });
+        moduls.push(await this.modulRepo.save(modul));
+      }
     }
-    return guardades;
+    return moduls;
   }
 
   private async crearAlumnes(grupsMap: Map<string, Grup>, alumnesData: any[]) {
+    const salt = await bcrypt.genSalt(10);
     const alumnes: Usuari[] = [];
-
-    // Helper to check standard email format first
-    const isValidEmail = (email: string) => email && email.includes('@');
-
     for (const d of alumnesData) {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(d.contrasenya, salt);
-
-      // Busquem el grup pel codi
       const grup = grupsMap.get(d.grup_codi);
-
-      // Process Family Data to create Users
-      const tutors: Usuari[] = [];
-      const dadesFamiliaresArray = d.familia as unknown as Familiar[];
-
-      if (dadesFamiliaresArray && Array.isArray(dadesFamiliaresArray)) {
-        for (const fam of dadesFamiliaresArray) {
-          // Try to generate a unique email if not provided or valid
-          // In a real app we'd demand email, but for seeding we can fake it if missing
-          let famEmail = fam.email;
-          if (!famEmail || !isValidEmail(famEmail)) {
-            // Create a fake email based on name + student surname + unique id
-            const cleanName = fam.nom_complet
-              .toLowerCase()
-              .replace(/\s+/g, '.');
-            famEmail = `${cleanName}@familia.adsum.cat`;
-          }
-
-          // Check if parent user already exists
-          let tutor = await this.usuariRepo.findOne({
-            where: { email: famEmail },
-          });
-
-          if (!tutor) {
-            const passFamily = 'familia123';
-            const hashFamily = await bcrypt.hash(passFamily, salt);
-
-            // Split full name
-            const parts = fam.nom_complet.split(' ');
-            const nom = parts[0];
-            const cognoms = parts.slice(1).join(' ') || 'Familiar';
-
-            tutor = this.usuariRepo.create({
-              nom: nom,
-              cognoms: cognoms,
-              email: famEmail,
-              contrasenyaHash: hashFamily,
-              rol: UserRole.FAMILIA,
-              esActiu: true,
-              telefon: fam.telefon_principal || undefined,
-            });
-            tutor = await this.usuariRepo.save(tutor);
-          }
-          tutors.push(tutor);
-        }
-      }
-
-      const alumne = this.usuariRepo.create({
-        nom: d.nom,
-        cognoms: d.cognoms,
-        email: d.email,
-        contrasenyaHash: hash,
-        rol: UserRole.ALUMNE,
-        esActiu: true,
-        grup: grup || undefined,
-        nivellEducatiu: d.nivell_educatiu as NivellEducatiu,
-        gamificacioData: d.gamificacio,
-        configuracioUsuari: d.configuracio,
-        dadesFamiliares: d.familia,
-        tutors: tutors, // Link to parent users
+      const user = this.usuariRepo.create({
+        nom: d.nom, cognoms: d.cognoms, email: d.email, rol: UserRole.ALUMNE, esActiu: true,
+        grup, contrasenyaHash: await bcrypt.hash(d.contrasenya, salt)
       });
-      alumnes.push(await this.usuariRepo.save(alumne));
+      alumnes.push(await this.usuariRepo.save(user));
     }
     return alumnes;
   }
 
-  private async crearAssignacions(
-    grup: Grup,
-    professors: Usuari[],
-    assignatures: Assignatura[],
-  ) {
-    const assignacions: AssignacioDocent[] = [];
-    // Repartim assignatures entre els professors disponibles
-    // Només assignem assignatures d'exemple al primer grup per tenir dades inicials
-    for (let i = 0; i < assignatures.length; i++) {
-      // Filtrem per curs si volguessim ser precisos, però de moment ho deixem generic
-      if (i > 5) break; // Limitem per no crear massa assignacions de cop en l'exemple
+  private async generarDadesHistoriques(alumnes: Usuari[], moduls: Modul[]) {
+    for (const alumne of alumnes) {
+      const grupId = alumne.grup?.id;
+      if (!grupId) continue;
 
-      const profeAgarrat = professors[i % professors.length];
-      const assignacio = this.assignacioDocentRepo.create({
-        professor: profeAgarrat,
-        assignatura: assignatures[i],
-        grup: grup,
-        anyAcademic: '2025-2026', // Coherent amb config centre
-      });
-      assignacions.push(await this.assignacioDocentRepo.save(assignacio));
+      const modulsAlumne = moduls.filter(m => m.grup.id === grupId);
+      
+      for (const modul of modulsAlumne) {
+        const numNotes = Math.floor(Math.random() * 2) + 2;
+        for (let i = 0; i < numNotes; i++) {
+          const nota = this.notaRepo.create({
+            alumne, modul, valor: parseFloat((Math.random() * 5 + 5).toFixed(1)),
+            comentari: i === 0 ? 'Examen UF1' : 'Projecte Pràctic'
+          });
+          await this.notaRepo.save(nota);
+        }
+
+        for (let d = 0; d < 20; d++) {
+          const random = Math.random();
+          let estat = AssistenciaEstat.PRESENT;
+          if (random > 0.95) estat = AssistenciaEstat.ABSENT;
+          else if (random > 0.85) estat = AssistenciaEstat.RETARD;
+
+          const data = new Date();
+          data.setDate(data.getDate() - d);
+
+          const assistencia = this.assistenciaRepo.create({
+            alumne, modul, estat, dataRegistre: data,
+            metodeValidacio: MetodeValidacio.QR_MOBIL
+          });
+          await this.assistenciaRepo.save(assistencia);
+        }
+      }
     }
-    return assignacions;
   }
 
-  private async crearSessions(assignacions: AssignacioDocent[]) {
-    const sessions: Sessio[] = [];
-    if (assignacions.length > 0) {
-      const sessio = this.sessioRepo.create({
-        assignacioDocent: assignacions[0],
-        dataInici: new Date(),
-        estat: SessioEstat.ACTIVA,
-        pinAcces: '123456',
-        latitudOrigen: 41.3851,
-        longitudOrigen: 2.1734,
+  private async crearRecursos(moduls: Modul[], professors: Usuari[]) {
+    const recursos = [
+      { titol: 'Resum UF1: Objectes', nomFitxer: 'resum_uf1_objectes.pdf', mida: '2.4 MB', icona: 'file', color: 'bg-blue-500 shadow-blue-200' },
+      { titol: 'Projecte Final: Guia', nomFitxer: 'guia_projecte.pdf', mida: '1.1 MB', icona: 'file', color: 'bg-emerald-500 shadow-emerald-200' },
+      { titol: 'Apunts Accessibilitat', nomFitxer: 'accessibilitat.pdf', mida: '5.8 MB', icona: 'file', color: 'bg-amber-500 shadow-amber-200' },
+      { titol: 'Exercicis SQL Avançat', nomFitxer: 'exercicis_sql.pdf', mida: '850 KB', icona: 'file', color: 'bg-indigo-500 shadow-indigo-200' },
+    ];
+
+    const folder = path.join(process.cwd(), 'uploads', 'recursos');
+    if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
+
+    for (const r of recursos) {
+      const recurs = this.recursRepo.create({
+        titol: r.titol,
+        nomFitxer: r.nomFitxer,
+        mida: r.mida,
+        icona: r.icona,
+        color: r.color,
+        modul: moduls[Math.floor(Math.random() * moduls.length)],
+        autor: professors[0],
       });
-      sessions.push(await this.sessioRepo.save(sessio));
+      await this.recursRepo.save(recurs);
+      
+      const ruta = path.join(folder, r.nomFitxer);
+      fs.writeFileSync(ruta, `Contingut del recurs acadèmic: ${r.titol}`);
     }
-    return sessions;
+  }
+
+  private async crearMissatges(alumnes: Usuari[]) {
+    if (alumnes.length > 0) {
+      const msg = this.missatgeRepo.create({
+        text: 'Benvinguts al xat oficial d\'ADSUM! Aquest és l\'històric persistent.',
+        sala: 'GLOBAL',
+        usuariId: alumnes[0].id,
+      });
+      await this.missatgeRepo.save(msg);
+
+      // Crear una justificació de prova
+      const just = this.justificacioRepo.create({
+        alumneId: alumnes[0].id,
+        dataInici: '2026-05-10',
+        dataFi: '2026-05-11',
+        motiu: 'Visita mèdica programada',
+        estat: JustificacioEstat.PENDENT,
+      });
+      await this.justificacioRepo.save(just);
+    }
   }
 }

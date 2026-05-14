@@ -9,7 +9,7 @@ import {
 import { NotificacionsService } from './notifications.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('notificacions')
+@Controller('api/notificacions')
 @UseGuards(JwtAuthGuard)
 export class NotificacionsController {
   constructor(private readonly notificacionsService: NotificacionsService) {}
