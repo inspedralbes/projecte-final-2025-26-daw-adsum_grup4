@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,11 +20,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: any, @Req() req: Request) {
-    console.log('[DEBUG] Login request body:', loginDto);
-    if (!loginDto) {
-      throw new UnauthorizedException('Cos de la petició buit');
-    }
+  async login(@Body() loginDto: LoginDto, @Req() req: Request) {
     const password = loginDto.contrasenya || loginDto.password;
     const ip = req.ip || req.socket.remoteAddress;
     const user = await this.authService.validateUser(
