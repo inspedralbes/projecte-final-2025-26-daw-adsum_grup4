@@ -104,6 +104,3 @@ El sistema utilitza **Docker Secrets** per evitar l'exposició de credencials en
 | **[Nom Membre 2]** | Backend Dev | API Design, DB Schema, TypeORM |
 | **[Nom Membre 3]** | DevOps/Security | Docker, CI/CD, Security Auditing |
 | **[Nom Membre 4]** | QA/Docs | Testing, Documentation, UX Design |
-
----
-🤖 Generat i optimitzat amb [Claude Code](https://claude.com/claude-code)
