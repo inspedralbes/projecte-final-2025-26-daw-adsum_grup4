@@ -1,5 +1,16 @@
 <template>
-  <div class="space-y-5">
+  <div class="space-y-8 animate-fade-in">
+
+    <!-- Capçalera (Afegit per consistència amb la resta de vistes) -->
+    <div class="bg-white shadow-xl shadow-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-6 p-8 rounded-[2rem] border border-slate-100">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">Registre Oficial</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight uppercase italic leading-none text-slate-900">Històric d'Assistència</h2>
+        <p class="text-slate-400 mt-2 max-w-sm uppercase text-[10px] tracking-widest font-bold">Resum global i darreres sessions</p>
+      </div>
+    </div>
 
     <!-- Resum de stats -->
     <div v-if="loading" class="text-center py-10 text-slate-400">
@@ -81,17 +92,21 @@
 import { ref, onMounted } from 'vue';
 import { API_BASE_URL } from '@/config/api';
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+
 const loading = ref(true);
 const error = ref(null);
 const stats = ref({});
 const recents = ref([]);
 
-// ID de l'alumna hardcoded per al MVP (Andreia = id 2)
-const ALUMNE_ID = 2;
-
 onMounted(async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/alumne/${ALUMNE_ID}/stats`);
+    const res = await fetch(`${API_BASE_URL}/usuaris/${props.user.id}/stats`);
     if (!res.ok) throw new Error('Error al carregar les dades');
     const data = await res.json();
     stats.value = data.stats;

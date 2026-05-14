@@ -86,23 +86,25 @@
         </div>
         <!-- Contenido según la vista -->
         <div v-if="activeView === 'qr'">
-          <AttendanceQR />
+          <AttendanceRegister :alumneId="usuariActual.id" />
+          <div class="mt-8 border-t border-slate-100 pt-8">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">O escaneja el QR de la porta</p>
+            <AttendanceQR />
+          </div>
         </div>
         <div v-if="activeView === 'performance'">
-          <PerformanceDashboard />
+          <PerformanceDashboard :user="usuariActual" />
         </div>
         <div v-if="activeView === 'attendance'">
-          <AttendanceStats />
+          <AttendanceStats :user="usuariActual" />
         </div>
         <div v-if="activeView === 'resources'" class="text-center py-10 text-slate-400">
           <p class="text-4xl mb-3">📚</p>
           <p class="font-bold">Recursos i Comunitat</p>
           <p class="text-sm mt-1">Properament</p>
         </div>
-        <div v-if="activeView === 'hallpass'" class="text-center py-10 text-slate-400">
-          <p class="text-4xl mb-3">🚪</p>
-          <p class="font-bold">Passadís Digital</p>
-          <p class="text-sm mt-1">Properament</p>
+        <div v-if="activeView === 'hallpass'">
+          <HallPass :user="usuariActual" />
         </div>
       </div>
     </div>
@@ -112,14 +114,18 @@
 <script setup>
 import { ref, computed } from 'vue';
 import AttendanceQR from '../components/alumne/AttendanceQR.vue';
+import AttendanceRegister from '../components/alumne/AttendanceRegister.vue';
 import PerformanceDashboard from '../components/alumne/PerformanceDashboard.vue';
 import AttendanceStats from '../components/alumne/AttendanceStats.vue';
+import HallPass from '../components/alumne/HallPass.vue';
 
 const activeView = ref('home');
+// Usuari de prova del seed (Arnau Soler - 2DAW-A)
+const usuariActual = { id: 6, nom: 'Arnau Soler', grup: '2DAW-A' };
 
 const viewTitle = computed(() => {
     const titles= {
-        qr: 'Fitxatge QR',
+        qr: 'Registre d\'Assistència',
         performance: 'El meu rendiment',
         attendance: 'Assistència',
         resources: 'Recursos',
