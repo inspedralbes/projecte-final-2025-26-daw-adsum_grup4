@@ -322,7 +322,7 @@
             <div class="absolute -top-4 -right-4 w-20 h-20 bg-indigo-600/5 rounded-full blur-2xl"></div>
             
             <div class="flex justify-between items-center mb-4 relative">
-              <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm">Grup {{ idx + 1 }}</span>
+              <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm">Grup {{ idx + 1 }}</span>>
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ group.length }} Alumnes</span>
             </div>
 
