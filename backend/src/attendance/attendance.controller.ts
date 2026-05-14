@@ -4,7 +4,7 @@ import { Controller, Post, Body, BadRequestException, Get, Param, Res } from '@n
 import { AttendanceService } from './attendance.service';
 import { ExportService } from '../export/export.service';
 import { UsersService } from '../users/users.service';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 @Controller('attendance')
 @UseGuards(JwtAuthGuard)
