@@ -64,7 +64,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
           Dispositiu,
           AttendanceToken,
         ],
-        synchronize: false,
+        synchronize: true,
         retryAttempts: 10,
         retryDelay: 3000,
         autoLoadEntities: true,
