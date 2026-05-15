@@ -293,4 +293,18 @@ export class SeedService implements OnApplicationBootstrap {
       await this.justificacioRepo.save(just);
     }
   }
+
+  async getStatus() {
+    const totalUsers = await this.usuariRepo.count();
+    const admins = await this.usuariRepo.find({ where: { rol: 'admin' as any } });
+    const professors = await this.usuariRepo.find({ where: { rol: 'professor' as any } });
+    const alumnes = await this.usuariRepo.find({ where: { rol: 'alumne' as any } });
+
+    return {
+      totalUsers,
+      admins: admins.map(u => ({ email: u.email, nom: u.nom })),
+      professors: professors.map(u => ({ email: u.email, nom: u.nom })),
+      alumnesCount: alumnes.length,
+    };
+  }
 }
