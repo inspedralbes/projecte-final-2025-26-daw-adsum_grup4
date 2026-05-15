@@ -76,7 +76,7 @@ import { Reserva } from './entities/reserva.entity';
           Espai,
           Reserva,
         ],
-        synchronize: true,
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
         retryAttempts: 10,
         retryDelay: 3000,
         autoLoadEntities: true,

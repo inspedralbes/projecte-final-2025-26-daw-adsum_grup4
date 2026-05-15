@@ -3,6 +3,20 @@
 -- Versió: Final (MVP + Funcionalitats Avançades)
 -- =======================================================
 
+-- -------------------------------------------------------
+-- TypeORM Metadata (per a columnes generades)
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `typeorm_metadata` (
+    `type` VARCHAR(200) NOT NULL,
+    `name` VARCHAR(200) NULL,
+    `schema` VARCHAR(200) NULL,
+    `table` VARCHAR(200) NULL,
+    `value` TEXT NULL,
+    PRIMARY KEY (`type`, `name`, `schema`, `table`)
+) ENGINE=InnoDB;
+
+INSERT INTO `typeorm_metadata` (`type`, `name`, `schema`, `table`, `value`) VALUES
+('GENERATED_COLUMN', 'durada_minuts', 'adsum_db', 'sortides_aula', 'TIMESTAMPDIFF(MINUTE, hora_sortida, hora_tornada)');
 
 -- -------------------------------------------------------
 -- 1. CONFIGURACIÓ GLOBAL (Singleton)
