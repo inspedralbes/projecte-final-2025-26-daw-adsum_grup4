@@ -73,4 +73,14 @@ export class UsersController {
   async seedStudents(@Param('id') id: string) {
     return await this.usersService.seedStudents(Number(id));
   }
+
+  @Get(':id/notes')
+  async getNotes(@Param('id') id: string) {
+    return await this.usersService.getAlumneNotes(Number(id));
+  }
+
+  @Get(':id/schedule')
+  async getSchedule(@Param('id') id: string) {
+    return await this.usersService.getAlumneSchedule(Number(id));
+  }
 }

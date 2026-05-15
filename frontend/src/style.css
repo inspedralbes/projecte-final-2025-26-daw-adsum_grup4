@@ -1,1 +1,109 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primari-claret: #dbeafe; /* blue-100 */
+  --color-primari-normal: #1e40af; /* blue-700 */
+  --color-primari-fosc: #1e3a8a;   /* blue-800 */
+  
+  --color-accent-claret: #d1fae5; /* emerald-100 */
+  --color-accent-normal: #059669; /* emerald-600 */
+  --color-accent-fosc: #047857;   /* emerald-700 */
+}
+
+@layer components {
+  /* Estil de targeta "Campus" - Més net i estructurat per a institut */
+  .targeta-campus {
+    background-color: white;
+    border: 1px solid #e2e8f0; /* slate-200 */
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .targeta-campus:hover {
+    border-color: var(--color-primari-claret);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+
+  /* Secció d'Hero Acadèmic */
+  .hero-academic {
+    background: linear-gradient(135deg, var(--color-primari-fosc) 0%, #3b82f6 100%);
+    color: white;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Botons més sobris per a entorn educatiu */
+  .boto-academic {
+    background-color: var(--color-primari-normal);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    font-size: 0.75rem;
+  }
+
+  .boto-academic:hover {
+    background-color: var(--color-primari-fosc);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .boto-academic:active {
+    transform: translateY(0);
+  }
+
+  /* Badges d'estat */
+  .badge-estat {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc; /* slate-50 */
+    min-height: 100vh;
+    color: #1e293b; /* slate-800 */
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Animacions Personalitzades ADSUM */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}

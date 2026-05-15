@@ -10,7 +10,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Raw } from 'typeorm';
+import { Repository, Raw, IsNull } from 'typeorm';
 import {
   Assistencia,
   AssistenciaEstat,
@@ -19,6 +19,7 @@ import {
 import { Sessio, SessioEstat } from '../entities/sessio.entity';
 import { Usuari } from '../entities/usuari.entity';
 import { AttendanceToken } from '../entities/attendance-token.entity';
+import { SortidaAula, MotiuSortida } from '../entities/sortida-aula.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AttendanceGateway } from './attendance.gateway';
 import { LogsService } from '../logs/logs.service';
@@ -37,6 +38,8 @@ export class AttendanceService {
     private usuariRepo: Repository<Usuari>,
     @InjectRepository(AttendanceToken)
     private readonly tokenRepository: Repository<AttendanceToken>,
+    @InjectRepository(SortidaAula)
+    private readonly sortidaRepo: Repository<SortidaAula>,
     @Inject(forwardRef(() => AttendanceGateway))
     private readonly attendanceGateway: AttendanceGateway,
     private readonly logsService: LogsService,
@@ -50,7 +53,28 @@ export class AttendanceService {
     absentMinutes: number = 30,
   ): Promise<AttendanceToken | { token: string; expiresAt: Date }> {
     if (modulId && professorId) {
-      // Logic from feature branch: persistence in DB
+      // 1. Asegurar que existe una sesión activa para este profesor y módulo
+      // Buscamos la asignación docente
+      const assignacio = await this.assistenciaRepo.manager.getRepository('AssignacioDocent').findOne({
+        where: { professorId: professorId, assignaturaId: modulId }
+      });
+
+      if (assignacio) {
+        let sessio = await this.sessioRepo.findOne({
+          where: { assignacioDocentId: (assignacio as any).id, estat: SessioEstat.ACTIVA }
+        });
+
+        if (!sessio) {
+          sessio = this.sessioRepo.create({
+            assignacioDocentId: (assignacio as any).id,
+            estat: SessioEstat.ACTIVA,
+            dataInici: new Date()
+          });
+          await this.sessioRepo.save(sessio);
+        }
+      }
+
+      // 2. Generar el token (PIN de 6 dígitos)
       const tokenValue = crypto.randomInt(100000, 999999).toString();
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 2);
@@ -65,7 +89,12 @@ export class AttendanceService {
         isUsed: false,
       });
 
-      return await this.tokenRepository.save(newToken);
+      const savedToken = await this.tokenRepository.save(newToken);
+      
+      // Notificar a todos los alumnos del módulo vía WebSockets
+      this.attendanceGateway.broadcastNewToken(modulId, savedToken.token);
+
+      return savedToken;
     } else {
       // Logic from HEAD: legacy uuid token in memory
       const tokenValue = uuidv4();
@@ -401,5 +430,51 @@ export class AttendanceService {
     }
 
     return result;
+  }
+
+  async registrarSortida(alumneId: number, motiu: MotiuSortida) {
+    // 1. Buscar sessió activa per l'alumne
+    const alumne = await this.usuariRepo.findOne({ where: { id: alumneId }, relations: ['grup'] });
+    if (!alumne || !alumne.grup) throw new NotFoundException('Alumne o grup no trobat');
+
+    const sessio = await this.sessioRepo.findOne({
+      where: { estat: SessioEstat.ACTIVA, assignacioDocent: { grup: { id: alumne.grup.id } } },
+      relations: ['assignacioDocent']
+    });
+
+    if (!sessio) throw new BadRequestException('No hi ha cap sessió activa ara mateix');
+
+    // 2. Crear registre de sortida
+    const sortida = this.sortidaRepo.create({
+      sessioId: sessio.id,
+      alumneId: alumne.id,
+      // Nota: motiu es podria guardar en una columna extra si cal, 
+      // però segons l'entitat actual només tenim les hores.
+      // Afegiré el motiu com a comentari o en un camp nou si l'entitat ho permet.
+    });
+
+    const guardada = await this.sortidaRepo.save(sortida);
+
+    // 3. Notificar al professor
+    this.attendanceGateway.notifyHallPass(sessio.assignacioDocent.assignaturaId, {
+      alumneId: alumne.id,
+      nom: alumne.nom,
+      motiu: motiu,
+      hora: guardada.horaSortida
+    });
+
+    return guardada;
+  }
+
+  async registrarTornada(alumneId: number) {
+    const sortida = await this.sortidaRepo.findOne({
+      where: { alumneId: alumneId, horaTornada: IsNull() },
+      order: { horaSortida: 'DESC' }
+    });
+
+    if (!sortida) throw new NotFoundException('No tens cap sortida pendent');
+
+    sortida.horaTornada = new Date();
+    return await this.sortidaRepo.save(sortida);
   }
 }

@@ -15,7 +15,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // Utilitzem el nom del servei 'backend' definit a docker-compose
+      },
+      '/socket.io': {
+        target: 'http://backend:3000',
+        ws: true,
+        changeOrigin: true,
       },
     },
     host: true,

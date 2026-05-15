@@ -1,49 +1,66 @@
 <template>
-  <div class="bg-white p-6 rounded-[2.5rem] w-full mx-auto text-center animate-fade-in relative">
-    <!-- Botón de cerrar para el modal -->
-    <button @click="$emit('close')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-600 transition-colors">✕</button>
+  <div class="targeta-dinamica !p-8 w-full max-w-sm mx-auto text-center border-white/40 shadow-2xl relative animate-fade-in">
+    <!-- Botó de tancar -->
+    <button @click="$emit('close')" class="absolute top-6 right-6 w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
     
-    <div class="flex justify-between w-full items-center mb-6 px-2">
-      <h3 class="font-black text-slate-800 uppercase tracking-widest text-[10px]">Identitat Digital</h3>
+    <div class="mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-2xl mb-4 shadow-inner">
+        <AppIcon name="qr" class="w-8 h-8 text-primari-normal" />
+      </div>
+      <h3 class="font-black text-slate-900 uppercase tracking-[0.2em] text-[11px]">Identitat Digital ADSUM</h3>
+      <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Vàlid només per a la sessió actual</p>
     </div>
-    <div class="bg-slate-50 p-6 rounded-3xl mb-8 flex flex-col items-center justify-center border border-slate-100 shadow-inner">
-      <qrcode-vue :value="qrValue" :size="200" level="H" render-as="svg" />
-      <div class="mt-4 w-full">
-        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Token de verificació</p>
-        <code class="text-[10px] font-mono text-indigo-600 font-bold break-all bg-white py-2 px-3 rounded-xl border border-slate-100 block shadow-sm select-all">{{ qrValue }}</code>
+
+    <div class="bg-white p-6 rounded-[2.5rem] mb-8 flex flex-col items-center justify-center border-4 border-slate-50 shadow-xl relative overflow-hidden group">
+      <div class="absolute inset-0 degradat-adsum opacity-[0.02] group-hover:opacity-[0.05] transition-opacity"></div>
+      <qrcode-vue :value="qrValue" :size="180" level="H" render-as="svg" class="relative z-10" />
+      
+      <div class="mt-6 w-full relative z-10">
+        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Codi de seguretat</p>
+        <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-slate-100 shadow-inner group-hover:border-primari-claret transition-colors">
+          <code class="text-[10px] font-mono text-primari-normal font-black break-all select-all">{{ qrValue }}</code>
+        </div>
       </div>
     </div>
     
-    <div class="w-full bg-slate-100 rounded-full h-2 mb-2 overflow-hidden">
-      <div 
-        class="bg-indigo-600 h-full transition-all duration-100 ease-linear"
-        :style="{ width: (timeLeft / 5) * 100 + '%' }"
-      ></div>
-    </div>
-    <div class="flex justify-between items-center px-1">
-      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-        {{ Math.ceil(timeLeft) }}s per refrescar
-      </p>
-      <p :class="status.includes('Conectat') ? 'text-green-500' : 'text-red-500'" class="text-[10px] font-mono font-bold uppercase tracking-tighter">
-        ● {{ status }}
-      </p>
-    </div>
-    <!-- Indicadores de Validación (Mockups para el MVP) -->
-    <div class="mt-8 pt-6 border-t border-slate-50 flex justify-around">
-      <div class="flex flex-col items-center opacity-40">
-        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-</svg>
-</div>
-        <span class="text-[8px] font-black uppercase text-slate-500">GPS</span>
+    <div class="space-y-3">
+      <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-white">
+        <div 
+          class="degradat-adsum h-full rounded-full transition-all duration-100 ease-linear shadow-sm"
+          :style="{ width: (timeLeft / 5) * 100 + '%' }"
+        ></div>
       </div>
-      <div class="flex flex-col items-center opacity-40">
-        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-</svg>
-</div>
-        <span class="text-[8px] font-black uppercase text-slate-500">Device</span>
+      
+      <div class="flex justify-between items-center px-1">
+        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">
+          Refresc en <span class="text-primari-normal">{{ Math.ceil(timeLeft) }}s</span>
+        </p>
+        <div class="flex items-center gap-1.5">
+          <div class="w-1.5 h-1.5 rounded-full animate-pulse" :class="status.includes('línia') ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'"></div>
+          <span class="text-[9px] font-black uppercase tracking-widest" :class="status.includes('línia') ? 'text-emerald-600' : 'text-red-500'">
+            {{ status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicadors de Validació -->
+    <div class="mt-10 pt-6 border-t border-slate-100 flex justify-around opacity-40 group-hover:opacity-100 transition-opacity">
+      <div class="flex flex-col items-center gap-1">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shadow-inner">
+          <AppIcon name="location" class="w-5 h-5 text-slate-400" />
+        </div>
+        <span class="text-[8px] font-black uppercase text-slate-400 tracking-tighter">Geo-Posició</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shadow-inner">
+          <AppIcon name="phone" class="w-5 h-5 text-slate-400" />
+        </div>
+        <span class="text-[8px] font-black uppercase text-slate-400 tracking-tighter">Dispositiu</span>
       </div>
     </div>
   </div>
@@ -60,7 +77,7 @@ let timer = null;
 const status = ref('Desconnectat');
 
 onMounted(() => {
-  const socketUrl = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000';
+  const socketUrl = window.location.origin;
   const socket = io(socketUrl);
   const startCountdown = () => {
     if (timer) clearInterval(timer);
