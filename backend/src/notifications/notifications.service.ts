@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -18,9 +21,17 @@ export class NotificacionsService {
   ) {
     const publicKey = this.configService.get<string>('VAPID_PUBLIC_KEY');
     const privateKey = this.configService.get<string>('VAPID_PRIVATE_KEY');
-    const subject = this.configService.get<string>('VAPID_SUBJECT');
+    const subject = this.configService.get<string>('VAPID_SUBJECT') || 'mailto:admin@adsum.edu';
 
-    webpush.setVapidDetails(subject, publicKey, privateKey);
+    try {
+      if (publicKey && privateKey) {
+        webpush.setVapidDetails(subject, publicKey, privateKey);
+      } else {
+        this.logger.warn('VAPID keys are missing. Push notifications will be disabled.');
+      }
+    } catch (error) {
+      this.logger.error(`Failed to set VAPID details: ${error.message}. Push notifications will be disabled.`);
+    }
   }
 
   async subscriure(usuari: Usuari, subscription: any, userAgent: string) {
@@ -59,17 +70,21 @@ export class NotificacionsService {
 
     for (const alumne of alumnes) {
       this.logger.log(`Buscant alumne ${alumne.id} - ${alumne.nom}`);
-      
+
       const alumneComplet = await this.dataSource.manager.findOne(Usuari, {
         where: { id: alumne.id },
         relations: ['tutors'],
       });
 
-      this.logger.log(`Alumne complet: ${JSON.stringify(alumneComplet?.tutors?.map(t => t.id))}`);
+      this.logger.log(
+        `Alumne complet: ${JSON.stringify(alumneComplet?.tutors?.map((t) => t.id))}`,
+      );
 
       if (alumneComplet?.tutors) {
         for (const tutor of alumneComplet.tutors) {
-          this.logger.log(`Tutor trobat: ${tutor.id} - ${tutor.nom} - rol: ${tutor.rol}`);
+          this.logger.log(
+            `Tutor trobat: ${tutor.id} - ${tutor.nom} - rol: ${tutor.rol}`,
+          );
           if (tutor.rol === UserRole.FAMILIA) {
             paresIds.add(tutor.id);
           }
@@ -77,10 +92,12 @@ export class NotificacionsService {
       }
     }
 
-    this.logger.log(`Total tutors trobats: ${paresIds.size} - IDs: ${Array.from(paresIds).join(', ')}`);
+    this.logger.log(
+      `Total tutors trobats: ${paresIds.size} - IDs: ${Array.from(paresIds).join(', ')}`,
+    );
 
     if (paresIds.size === 0) {
-      this.logger.log('No s\'han trobat tutors per enviar notificació');
+      this.logger.log("No s'han trobat tutors per enviar notificació");
       return;
     }
 

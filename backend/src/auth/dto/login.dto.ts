@@ -8,7 +8,7 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty({ message: 'La contrasenya és obligatòria' })
   @MinLength(6, { message: 'La contrasenya ha de tenir almenys 6 caràcters' })
-  password?: string;
+  password: string;
 
   @IsString()
   contrasenya?: string;

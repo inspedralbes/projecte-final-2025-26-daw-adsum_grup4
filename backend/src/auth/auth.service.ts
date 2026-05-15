@@ -18,6 +18,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string, ip?: string): Promise<any> {
+    console.log(`[DEBUG AUTH] Intent de login per: ${email} des de IP: ${ip}`);
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {

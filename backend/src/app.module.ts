@@ -11,6 +11,7 @@ import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
 import { LogsModule } from './logs/logs.module';
+import { ExportModule } from './export/export.module';
 
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
@@ -78,6 +79,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
     NotificacionsModule,
     AuthModule,
     LogsModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { DataSource } from 'typeorm';
 import { Usuari } from './entities/usuari.entity';
 import { Grup } from './entities/grup.entity';
