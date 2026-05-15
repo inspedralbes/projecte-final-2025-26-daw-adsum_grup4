@@ -49,7 +49,7 @@
         </div>
       </form>
       
-      <div v-if="errorMessage" role="alert" class="mt-6 p-4 bg-red-50 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-2xl text-center border border-red-100 animate-pulse">
+      <div v-if="errorMessage" role="alert" class="mt-6 p-4 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-2xl text-center border border-red-100">
           {{ errorMessage }}
       </div>
 
@@ -78,25 +78,40 @@ const handleLogin = async () => {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email.value, password: password.value })
         });
 
         if (!response.ok) {
-            throw new Error('Credencials invàlides');
+            if (response.status === 401) {
+                throw new Error('Correu o contrasenya incorrectes');
+            } else if (response.status >= 500) {
+                throw new Error('Error del servidor. Torna-ho a intentar més tard');
+            } else {
+                throw new Error(`Error inesperat (${response.status})`);
+            }
         }
 
         const data = await response.json();
+
+        if (!data.access_token || !data.user) {
+            throw new Error('Resposta del servidor incorrecta');
+        }
         
-        // Save the token and user data in localStorage
+        // Save token and full user data
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        // Save role separately for push notifications and quick access
+        localStorage.setItem('userRole', data.user.rol);
+        localStorage.setItem('token_created_at', Date.now().toString());
 
         emits('login-success');
     } catch (error) {
-        errorMessage.value = error.message || 'Error en iniciar sessió';
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            errorMessage.value = 'No es pot connectar amb el servidor. Comprova la connexió.';
+        } else {
+            errorMessage.value = error.message || 'Error en iniciar sessió';
+        }
     } finally {
         isLoading.value = false;
     }

@@ -50,18 +50,39 @@ import PerformanceView from './views/PerformanceView.vue';
 import DashboardProfessor from './views/DashboardProfessor.vue';
 import ClasseDetall from './views/ClasseDetall.vue';
 
-const isLoggedIn = ref(!!localStorage.getItem('access_token'));
-const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));
+const isLoggedIn = ref(false);
+const currentUser = ref(null);
 const selectedClass = ref(null);
 
+const checkAuth = () => {
+  const token = localStorage.getItem('access_token');
+  const user = localStorage.getItem('user');
+  
+  if (token && user) {
+    try {
+      isLoggedIn.value = true;
+      currentUser.value = JSON.parse(user);
+    } catch (e) {
+      handleLogout();
+    }
+  } else {
+    isLoggedIn.value = false;
+    currentUser.value = null;
+  }
+};
+
+// Check auth on load
+checkAuth();
+
 const handleLoginSuccess = () => {
-  isLoggedIn.value = true;
-  currentUser.value = JSON.parse(localStorage.getItem('user') || 'null');
+  checkAuth();
 };
 
 const handleLogout = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('user');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('token_created_at');
   isLoggedIn.value = false;
   currentUser.value = null;
   selectedClass.value = null;
