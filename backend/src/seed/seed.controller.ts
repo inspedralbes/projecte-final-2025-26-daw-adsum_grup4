@@ -9,4 +9,9 @@ export class SeedController {
   async executarSeed() {
     return await this.seedService.executarSeed();
   }
+
+  @Get('status')
+  async getStatus() {
+    return await this.seedService.getStatus();
+  }
 }

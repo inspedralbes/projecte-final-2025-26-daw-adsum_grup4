@@ -35,32 +35,35 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    const defaultUsers = [
-      {
-        email: 'alumne@adsum.cat',
-        nom: 'Alumne',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.ALUMNE,
-      },
-      {
-        email: 'professor@adsum.cat',
-        nom: 'Professor',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.PROFESSOR,
-      },
-      {
-        email: 'admin@adsum.cat',
-        nom: 'Admin',
-        cognoms: 'Demo',
-        password: 'password123',
-        rol: UserRole.ADMIN,
-      },
-    ];
+    try {
+      console.log("[SEED] Starting seed execution...");
+      
+      const defaultUsers = [
+        {
+          email: 'alumne@adsum.cat',
+          nom: 'Alumne',
+          cognoms: 'Demo',
+          password: 'password123',
+          rol: UserRole.ALUMNE,
+        },
+        {
+          email: 'professor@adsum.cat',
+          nom: 'Professor',
+          cognoms: 'Demo',
+          password: 'password123',
+          rol: UserRole.PROFESSOR,
+        },
+        {
+          email: 'admin@adsum.cat',
+          nom: 'Admin',
+          cognoms: 'Demo',
+          password: 'password123',
+          rol: UserRole.ADMIN,
+        },
+      ];
 
-    console.log("[DEBUG SEED] Iniciant verificació d'usuaris per defecte...");
-    for (const u of defaultUsers) {
+      console.log("[SEED] Checking default users...");
+      for (const u of defaultUsers) {
       const exists = await this.usuariRepo.findOne({
         where: { email: u.email },
       });
@@ -81,7 +84,10 @@ export class SeedService implements OnApplicationBootstrap {
         console.log(`[DEBUG SEED] L'usuari ja existeix: ${u.email}`);
       }
     }
-    console.log("[DEBUG SEED] Verificació d'usuaris finalitzada.");
+    console.log("[SEED] Default users check completed.");
+    } catch (error) {
+      console.error("[SEED] Error during seed execution:", error);
+    }
   }
 
   async executarSeed() {
@@ -341,5 +347,19 @@ export class SeedService implements OnApplicationBootstrap {
       sessions.push(await this.sessioRepo.save(sessio));
     }
     return sessions;
+  }
+
+  async getStatus() {
+    const totalUsers = await this.usuariRepo.count();
+    const admins = await this.usuariRepo.find({ where: { rol: 'ADMIN' as any } });
+    const professors = await this.usuariRepo.find({ where: { rol: 'PROFESSOR' as any } });
+    const alumnes = await this.usuariRepo.find({ where: { rol: 'ALUMNE' as any } });
+
+    return {
+      totalUsers,
+      admins: admins.map(u => ({ email: u.email, nom: u.nom })),
+      professors: professors.map(u => ({ email: u.email, nom: u.nom })),
+      alumnesCount: alumnes.length,
+    };
   }
 }
