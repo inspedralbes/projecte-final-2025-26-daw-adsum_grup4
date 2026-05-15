@@ -29,6 +29,9 @@ COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 
+# Crear directorios de uploads antes de cambiar usuario
+RUN mkdir -p /app/uploads /app/uploads/justificacions && chown -R node:node /app
+
 # Añadir un usuario no root por seguridad (recomendado en producción)
 USER node
 
