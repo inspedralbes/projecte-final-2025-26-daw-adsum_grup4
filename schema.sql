@@ -82,6 +82,15 @@ ALTER TABLE grups ADD FOREIGN KEY (tutor_id) REFERENCES usuaris(id) ON DELETE SE
 ALTER TABLE grups ADD FOREIGN KEY (delegat_id) REFERENCES usuaris(id) ON DELETE SET NULL;
 
 -- -------------------------------------------------------
+-- USUARIS PER DEFECTE (Demo)
+-- -------------------------------------------------------
+-- Contrasenya: password123 (hasheada amb bcrypt)
+INSERT INTO usuaris (nom, cognoms, email, contrasenya_hash, rol, es_actiu) VALUES
+('Admin', 'Demo', 'admin@adsum.cat', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGqjE4L7K7hR1Q.vgI0yX5J5fZ0K', 'admin', true),
+('Professor', 'Demo', 'professor@adsum.cat', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGqjE4L7K7hR1Q.vgI0yX5J5fZ0K', 'professor', true),
+('Alumne', 'Demo', 'alumne@adsum.cat', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGqjE4L7K7hR1Q.vgI0yX5J5fZ0K', 'alumne', true);
+
+-- -------------------------------------------------------
 -- 4. ASSIGNATURES (Mòduls)
 -- -------------------------------------------------------
 CREATE TABLE assignatures (
