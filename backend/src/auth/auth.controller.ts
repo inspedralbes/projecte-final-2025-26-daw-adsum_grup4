@@ -12,14 +12,15 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: any, @Req() req: Request) {
+  async login(@Body() loginDto: LoginDto, @Req() req: Request) {
     const password = loginDto.contrasenya || loginDto.password;
     const ip = req.ip || req.socket.remoteAddress;
     const user = await this.authService.validateUser(

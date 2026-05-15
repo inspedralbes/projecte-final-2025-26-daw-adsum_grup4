@@ -21,9 +21,17 @@ export class NotificacionsService {
   ) {
     const publicKey = this.configService.get<string>('VAPID_PUBLIC_KEY');
     const privateKey = this.configService.get<string>('VAPID_PRIVATE_KEY');
-    const subject = this.configService.get<string>('VAPID_SUBJECT');
+    const subject = this.configService.get<string>('VAPID_SUBJECT') || 'mailto:admin@adsum.edu';
 
-    webpush.setVapidDetails(subject, publicKey, privateKey);
+    try {
+      if (publicKey && privateKey) {
+        webpush.setVapidDetails(subject, publicKey, privateKey);
+      } else {
+        this.logger.warn('VAPID keys are missing. Push notifications will be disabled.');
+      }
+    } catch (error) {
+      this.logger.error(`Failed to set VAPID details: ${error.message}. Push notifications will be disabled.`);
+    }
   }
 
   async subscriure(usuari: Usuari, subscription: any, userAgent: string) {

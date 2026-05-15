@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: prevent server crash when VAPID_SUBJECT is missing in NotificacionsService *)",
+      "Bash(docker exec adsum_db *)",
+      "Bash(curl *)"
     ]
   }
 }

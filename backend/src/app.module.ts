@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,7 +9,13 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SeedModule } from './seed/seed.module';
 import { NotificacionsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
-import { LogsModule } from './logs/logs.module';
+import { ChatModule } from './chat/chat.module';
+import { AiModule } from './ai/ai.module';
+import { Missatge } from './entities/missatge.entity';
+import { Recurs } from './entities/recurs.entity';
+import { ResourcesModule } from './resources/resources.module';
+import { JustificationsModule } from './justifications/justifications.module';
+import { BookingModule } from './booking/booking.module';
 import { ExportModule } from './export/export.module';
 
 import { Usuari } from './entities/usuari.entity';
@@ -30,6 +35,8 @@ import { Modul } from './entities/modul.entity';
 import { Nota } from './entities/nota.entity';
 import { AttendanceToken } from './entities/attendance-token.entity';
 import { Dispositiu } from './entities/dispositiu.entity';
+import { Espai } from './entities/espai.entity';
+import { Reserva } from './entities/reserva.entity';
 
 @Module({
   imports: [
@@ -40,7 +47,7 @@ import { Dispositiu } from './entities/dispositiu.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: (configService.get<string>('DB_TYPE') as any) || 'mysql',
+        type: 'mysql',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USERNAME'),
@@ -64,8 +71,12 @@ import { Dispositiu } from './entities/dispositiu.entity';
           Nota,
           Dispositiu,
           AttendanceToken,
+          Missatge,
+          Recurs,
+          Espai,
+          Reserva,
         ],
-        synchronize: false,
+        synchronize: true,
         retryAttempts: 10,
         retryDelay: 3000,
         autoLoadEntities: true,
@@ -78,7 +89,11 @@ import { Dispositiu } from './entities/dispositiu.entity';
     SeedModule,
     NotificacionsModule,
     AuthModule,
-    LogsModule,
+    ChatModule,
+    AiModule,
+    ResourcesModule,
+    JustificationsModule,
+    BookingModule,
     ExportModule,
   ],
   controllers: [AppController],

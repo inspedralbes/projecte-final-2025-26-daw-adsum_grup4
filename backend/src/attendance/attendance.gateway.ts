@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -17,13 +16,12 @@ import { Inject, forwardRef } from '@nestjs/common';
   },
 })
 export class AttendanceGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   constructor(
     @Inject(forwardRef(() => AttendanceService))
     private readonly attendanceService: AttendanceService,
-  ) {}
+  ) { }
 
   afterInit() {
     console.log('Socket.io Initialized');
@@ -38,9 +36,9 @@ export class AttendanceGateway
   }
 
   @SubscribeMessage('join_module')
-  async handleJoinModule(client: Socket, modulId: number) {
+  handleJoinModule(client: Socket, modulId: number) {
     const room = `module_${modulId}`;
-    await client.join(room);
+    client.join(room);
     console.log(`Cliente ${client.id} unido a sala ${room}`);
     return { event: 'joined', room };
   }
@@ -50,24 +48,24 @@ export class AttendanceGateway
     return { event: 'pong', data: '¡Hola desde el Backend!' };
   }
 
-  onModuleInit() {
-    this.startQrLoop();
-  }
-
-  startQrLoop() {
-    setInterval(async () => {
-      const tokenData = await this.attendanceService.generateToken(0, 0);
-      this.server.emit('new_qr', {
-        token: tokenData.token,
-        expiresAt: tokenData.expiresAt,
-      });
-      console.log('Nou QR generat', tokenData.token);
-    }, 5000);
-  }
-
   notifyAttendance(modulId: number, data: any) {
     const room = `module_${modulId}`;
     this.server.to(room).emit('attendance_updated', data);
-    console.log(`Notificación de asistencia enviada a sala ${room}`);
+    console.log(`Notificació d'assistència enviada a sala ${room}`);
+  }
+
+  broadcastNewToken(modulId: number, token: string) {
+    const room = `module_${modulId}`;
+    this.server.to(room).emit('new_qr', {
+      token: token,
+      expiresAt: new Date(Date.now() + 5000), // Válido para los próximos 5s en modo dinámico
+    });
+    console.log(`Nou token ${token} enviat a sala ${room}`);
+  }
+
+  notifyHallPass(modulId: number, data: any) {
+    const room = `module_${modulId}`;
+    this.server.to(room).emit('hall_pass_updated', data);
+    console.log(`Notificació de passadís enviada a sala ${room}`);
   }
 }

@@ -7,15 +7,11 @@ import { AttendanceService } from './attendance.service';
 import { AttendanceGateway } from './attendance.gateway';
 import { AttendanceController } from './attendance.controller';
 import { AttendanceToken } from '../entities/attendance-token.entity';
-import { LogsModule } from '../logs/logs.module';
-import { NotificacionsModule } from '../notifications/notifications.module';
+import { SortidaAula } from '../entities/sortida-aula.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Assistencia, Sessio, Usuari, AttendanceToken]),
-    LogsModule,
-    NotificacionsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Assistencia, Sessio, Usuari, AttendanceToken, SortidaAula])],
+
   controllers: [AttendanceController],
   providers: [AttendanceService, AttendanceGateway],
   exports: [AttendanceService],
