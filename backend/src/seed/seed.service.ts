@@ -36,7 +36,40 @@ export class SeedService implements OnApplicationBootstrap {
   ) { }
 
   async onApplicationBootstrap() {
-    // Verificació d'usuaris per defecte
+    try {
+      const count = await this.usuariRepo.count();
+      if (count > 0) {
+        console.log('[SEED] La base de dades ja té usuaris, saltant creació per defecte.');
+        return;
+      }
+      console.log('[SEED] Creant usuaris per defecte...');
+      
+      const bcrypt = require('bcryptjs');
+      const defaultUsers = [
+        { email: 'admin@adsum.cat', password: 'admin123', nom: 'Admin', cognoms: 'ADSUM', rol: UserRole.ADMIN },
+        { email: 'professor@adsum.cat', password: 'profe123', nom: 'Professor', cognoms: 'Demo', rol: UserRole.PROFESSOR },
+        { email: 'alumne@adsum.cat', password: 'alumne123', nom: 'Alumne', cognoms: 'Demo', rol: UserRole.ALUMNE },
+      ];
+      
+      for (const u of defaultUsers) {
+        const exists = await this.usuariRepo.findOne({ where: { email: u.email } });
+        if (!exists) {
+          const hash = await bcrypt.hash(u.password, 10);
+          await this.usuariRepo.save({
+            email: u.email,
+            nom: u.nom,
+            cognoms: u.cognoms,
+            contrasenyaHash: hash,
+            rol: u.rol,
+            esActiu: true,
+          });
+          console.log(`[SEED] Creat usuari: ${u.email}`);
+        }
+      }
+      console.log('[SEED] Usuaris per defecte creats correctament.');
+    } catch (error) {
+      console.error('[SEED] Error creant usuaris:', error.message);
+    }
   }
 
   async executarSeed() {
