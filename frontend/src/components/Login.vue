@@ -141,6 +141,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import AppIcon from './shared/AppIcon.vue';
 
 // Definim la URL relativa per usar el proxy de Vite
 const API_BASE_URL = '/api';
