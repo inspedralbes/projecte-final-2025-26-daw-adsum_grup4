@@ -4,9 +4,7 @@
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
       <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-            <AppIcon name="book" class="text-white w-6 h-6" />
-          </div>
+          <img src="/logo.png" alt="ADSUM" class="w-10 h-10 rounded-xl object-contain bg-white" />
           <span class="text-xl font-black text-slate-900 uppercase tracking-tighter italic">ADSUM</span>
         </div>
         <div class="hidden md:flex items-center gap-8">
@@ -25,7 +23,7 @@
             <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             Revolucionant la gestió acadèmica
           </div>
-          <h1 class="text-6xl md:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter italic">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter italic">
             L'assistència, <span class="text-blue-600">simplificada.</span><br/>
             El compromís, <span class="text-blue-600 uppercase">potenciat.</span>
           </h1>
@@ -286,9 +284,7 @@
     <footer class="py-20 border-t border-slate-100 bg-white">
       <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <AppIcon name="book" class="text-white w-4 h-4" />
-          </div>
+          <img src="/logo.png" alt="ADSUM" class="w-8 h-8 rounded-lg object-contain bg-white" />
           <span class="text-lg font-black text-slate-900 uppercase tracking-tighter italic">ADSUM</span>
         </div>
         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 Adsum Campus Digital. Tots els drets reservats.</p>
